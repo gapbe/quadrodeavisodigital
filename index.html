@@ -17,13 +17,14 @@
     <!-- Cor da barra superior (Android) -->
     <meta name="theme-color" content="#1A365D">
     
-    <!-- Ícone que aparecerá na tela do telemóvel (Logo GAP-BE) -->
+    <!-- Ícone que aparecerá na tela do telemóvel (Logo FAB/GAP) -->
     <link rel="apple-touch-icon" href="https://lh3.googleusercontent.com/d/1hLHrX8zWkOv6Z6NRPUGHi2Q1MMisdvcs">
     
     <!-- Script Dinâmico que gera o Manifest do App (Android) -->
     <script>
       const OM_CONFIG = {
-        API_URL: "COLE_AQUI_A_NOVA_URL_DO_APPS_SCRIPT", // <-- COLOQUE SUA URL AQUI
+        // ⚠️ ATENÇÃO: COLE SUA URL DO APPS SCRIPT ABAIXO
+        API_URL: "COLE_AQUI_A_NOVA_URL_DO_APPS_SCRIPT", 
         SIGLA: "ATIC",
         COR_PRIMARIA: "#1A365D",
         LOGO: "https://lh3.googleusercontent.com/d/1hLHrX8zWkOv6Z6NRPUGHi2Q1MMisdvcs"
@@ -66,7 +67,13 @@
       
       .app-header { background-color: #1A365D; color: white; padding: 15px; border-bottom: 4px solid #2B6CB0; }
       .container-app { padding: 15px; padding-bottom: 40px; }
+      
+      /* Ajuste dos cards para não terem bordas arredondadas coladas na tela em telas pequenas */
       .card { border-radius: 12px; border: none; }
+      @media (max-width: 576px) {
+        .container-app { padding: 10px 0; }
+        .card { border-radius: 0; border-left: none; border-right: none; }
+      }
     </style>
   </head>
   <body>
@@ -80,9 +87,9 @@
     </div>
 
     <div class="container-app">
-      <div class="row g-4">
+      <div class="row g-4 m-0">
         <!-- FORMULÁRIO DE AVISOS -->
-        <div class="col-12 col-md-6">
+        <div class="col-12 col-md-6 px-0 px-md-3">
           <div class="card shadow-sm h-100 border-primary border-top border-4" id="card-form-aviso">
             <div class="card-header bg-white fw-bold fs-5 text-primary" id="titulo-aviso">
               <i class="bi bi-megaphone-fill"></i> Novo Aviso
@@ -91,8 +98,8 @@
               <input type="hidden" id="inp-aviso-id" value="">
               <textarea id="inp-aviso" class="form-control mb-3" rows="3" placeholder="Digite o aviso para a tropa..."></textarea>
               <div class="d-flex gap-2">
-                <button class="btn btn-primary w-100 fw-bold py-2 shadow-sm" id="btn-aviso" onclick="enviarAviso()">PUBLICAR AVISO</button>
-                <button class="btn btn-secondary w-50 fw-bold d-none py-2" id="btn-cancelar-aviso" onclick="cancelarEdicaoAviso()">CANCELAR</button>
+                <button class="btn btn-primary w-100 fw-bold py-3 shadow-sm" id="btn-aviso" onclick="enviarAviso()">PUBLICAR AVISO</button>
+                <button class="btn btn-secondary w-50 fw-bold d-none py-3" id="btn-cancelar-aviso" onclick="cancelarEdicaoAviso()">CANCELAR</button>
               </div>
               <hr class="my-4"><h6 class="fw-bold text-muted"><i class="bi bi-list-check"></i> Histórico de Avisos</h6>
               <div class="table-responsive" style="max-height: 350px; overflow-y: auto;">
@@ -103,7 +110,7 @@
         </div>
 
         <!-- FORMULÁRIO DE MISSÕES -->
-        <div class="col-12 col-md-6">
+        <div class="col-12 col-md-6 px-0 px-md-3">
           <div class="card shadow-sm h-100 border-success border-top border-4" id="card-form-missao">
             <div class="card-header bg-white fw-bold fs-5 text-success" id="titulo-missao">
               <i class="bi bi-crosshair"></i> Nova Missão
@@ -117,8 +124,8 @@
               <input type="text" id="inp-m-desc" class="form-control form-control-lg fs-6 mb-2" placeholder="Descrição (Ex: FORMATURA GERAL)">
               <input type="text" id="inp-m-local" class="form-control form-control-lg fs-6 mb-3" placeholder="Local / Setor">
               <div class="d-flex gap-2">
-                <button class="btn btn-success w-100 fw-bold py-2 shadow-sm" id="btn-missao" onclick="enviarMissao()">AGENDAR MISSÃO</button>
-                <button class="btn btn-secondary w-50 fw-bold d-none py-2" id="btn-cancelar-missao" onclick="cancelarEdicaoMissao()">CANCELAR</button>
+                <button class="btn btn-success w-100 fw-bold py-3 shadow-sm" id="btn-missao" onclick="enviarMissao()">AGENDAR MISSÃO</button>
+                <button class="btn btn-secondary w-50 fw-bold d-none py-3" id="btn-cancelar-missao" onclick="cancelarEdicaoMissao()">CANCELAR</button>
               </div>
               <hr class="my-4"><h6 class="fw-bold text-muted"><i class="bi bi-list-check"></i> Histórico de Missões</h6>
               <div class="table-responsive" style="max-height: 350px; overflow-y: auto;">
@@ -131,9 +138,9 @@
     </div>
 
     <!-- MODAIS ELEGANTES -->
-    <div class="modal fade" id="modalAviso" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content border-0 shadow-lg"><div class="modal-header bg-success text-white" id="modalAvisoHeader"><h5 class="modal-title fw-bold"><i class="bi bi-check-circle"></i> Sucesso</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body text-center fs-5 py-4" id="modalAvisoBody"></div><div class="modal-footer justify-content-center border-0"><button type="button" class="btn btn-secondary w-75 fw-bold" data-bs-dismiss="modal">OK</button></div></div></div></div>
+    <div class="modal fade" id="modalAviso" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content border-0 shadow-lg"><div class="modal-header bg-success text-white" id="modalAvisoHeader"><h5 class="modal-title fw-bold"><i class="bi bi-check-circle"></i> Sucesso</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body text-center fs-5 py-4" id="modalAvisoBody"></div><div class="modal-footer justify-content-center border-0"><button type="button" class="btn btn-secondary w-75 fw-bold py-2" data-bs-dismiss="modal">OK</button></div></div></div></div>
     
-    <div class="modal fade" id="modalConfirmacao" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content border-danger shadow-lg"><div class="modal-header bg-danger text-white"><h5 class="modal-title fw-bold"><i class="bi bi-exclamation-triangle"></i> Atenção</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body text-center fs-5 py-4" id="modalConfirmacaoBody"></div><div class="modal-footer d-flex justify-content-between border-0"><button type="button" class="btn btn-secondary w-25 fw-bold" data-bs-dismiss="modal">Não</button><button type="button" class="btn btn-danger w-50 fw-bold shadow-sm" id="btnConfirmaExclusao">Sim, Remover</button></div></div></div></div>
+    <div class="modal fade" id="modalConfirmacao" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content border-danger shadow-lg"><div class="modal-header bg-danger text-white"><h5 class="modal-title fw-bold"><i class="bi bi-exclamation-triangle"></i> Atenção</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body text-center fs-5 py-4" id="modalConfirmacaoBody"></div><div class="modal-footer d-flex justify-content-between border-0"><button type="button" class="btn btn-secondary w-25 fw-bold py-2" data-bs-dismiss="modal">Não</button><button type="button" class="btn btn-danger w-50 fw-bold shadow-sm py-2" id="btnConfirmaExclusao">Sim, Remover</button></div></div></div></div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
@@ -207,6 +214,7 @@
       }
 
       function iniciarEdicaoAviso(id, desc) {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
         document.getElementById('inp-aviso-id').value = id; document.getElementById('inp-aviso').value = desc;
         document.getElementById('titulo-aviso').innerHTML = '<i class="bi bi-pencil-square"></i> Editar Aviso';
         document.getElementById('titulo-aviso').classList.replace('text-primary', 'text-warning');
@@ -238,6 +246,7 @@
         document.getElementById('card-form-missao').classList.replace('border-success', 'border-warning');
         let btn = document.getElementById('btn-missao'); btn.innerHTML = '<i class="bi bi-arrow-repeat"></i> ATUALIZAR MISSÃO'; btn.classList.replace('btn-success', 'btn-warning');
         document.getElementById('btn-cancelar-missao').classList.remove('d-none');
+        document.getElementById('card-form-missao').scrollIntoView({ behavior: 'smooth' });
       }
 
       function cancelarEdicaoMissao() {
@@ -256,7 +265,7 @@
             let isAtivo = (status === 'ATIVO');
             let corBadge = isAtivo ? 'success' : 'secondary'; let statusBtn = isAtivo ? 'INATIVO' : 'ATIVO'; let iconeBtn = isAtivo ? 'bi-toggle-on' : 'bi-toggle-off'; let corBotao = isAtivo ? 'outline-success' : 'outline-secondary';
             let safeDesc = desc.replace(/'/g, "\\'").replace(/"/g, "&quot;");
-            return `<tr><td><span class="badge bg-${corBadge} mb-1">${status}</span><br><small class="text-muted" style="font-size:0.75rem;">${data}</small></td><td><span class="${!isAtivo ? 'text-decoration-line-through text-muted' : ''}">${desc}</span></td><td class="text-end text-nowrap"><button class="btn btn-sm btn-outline-primary me-1" onclick="iniciarEdicaoAviso('${id}', '${safeDesc}')"><i class="bi bi-pencil"></i></button><button class="btn btn-sm btn-${corBotao} me-1" onclick="mudarStatus('AVISOS', '${id}', '${statusBtn}')"><i class="bi ${iconeBtn}"></i></button><button class="btn btn-sm btn-outline-danger" onclick="abrirConfirmacaoExclusao('AVISOS', '${id}', 'este aviso')"><i class="bi bi-trash"></i></button></td></tr>`;
+            return `<tr><td><span class="badge bg-${corBadge} mb-1">${status}</span><br><small class="text-muted" style="font-size:0.75rem;">${data}</small></td><td><span class="${!isAtivo ? 'text-decoration-line-through text-muted' : ''}">${desc}</span></td><td class="text-end text-nowrap"><button class="btn btn-sm btn-outline-primary me-1 py-1" onclick="iniciarEdicaoAviso('${id}', '${safeDesc}')"><i class="bi bi-pencil"></i></button><button class="btn btn-sm btn-${corBotao} me-1 py-1" onclick="mudarStatus('AVISOS', '${id}', '${statusBtn}')"><i class="bi ${iconeBtn}"></i></button><button class="btn btn-sm btn-outline-danger py-1" onclick="abrirConfirmacaoExclusao('AVISOS', '${id}', 'este aviso')"><i class="bi bi-trash"></i></button></td></tr>`;
           }).join('');
           document.getElementById('admin-avisos-lista').innerHTML = htmlAvisos || "<tr><td class='text-muted text-center py-3'>Nenhum aviso registrado.</td></tr>";
 
@@ -266,7 +275,7 @@
             let isPendente = (status === 'PENDENTE');
             let corBadge = isPendente ? 'warning text-dark' : 'success'; let statusBtn = isPendente ? 'EXECUTADA' : 'PENDENTE'; let iconeBtn = isPendente ? 'bi-check2-circle' : 'bi-arrow-counterclockwise'; let corBotao = isPendente ? 'outline-success' : 'outline-primary';
             let safeDesc = desc.replace(/'/g, "\\'").replace(/"/g, "&quot;"); let safeLocal = local ? local.replace(/'/g, "\\'").replace(/"/g, "&quot;") : '';
-            return `<tr><td><span class="badge bg-${corBadge} mb-1">${status}</span><br><span class="badge bg-dark">${data}</span></td><td><b class="${!isPendente ? 'text-decoration-line-through text-muted' : ''}">${desc}</b><br><small class="text-secondary"><i class="bi bi-geo-alt"></i> ${local || '-'}</small></td><td class="text-end text-nowrap"><button class="btn btn-sm btn-outline-primary me-1" onclick="iniciarEdicaoMissao('${id}', '${data}', '${safeDesc}', '${safeLocal}')"><i class="bi bi-pencil"></i></button><button class="btn btn-sm btn-${corBotao} me-1" onclick="mudarStatus('MISSOES', '${id}', '${statusBtn}')"><i class="bi ${iconeBtn}"></i></button><button class="btn btn-sm btn-outline-danger" onclick="abrirConfirmacaoExclusao('MISSOES', '${id}', 'esta missão')"><i class="bi bi-trash"></i></button></td></tr>`;
+            return `<tr><td><span class="badge bg-${corBadge} mb-1">${status}</span><br><span class="badge bg-dark">${data}</span></td><td><b class="${!isPendente ? 'text-decoration-line-through text-muted' : ''}">${desc}</b><br><small class="text-secondary"><i class="bi bi-geo-alt"></i> ${local || '-'}</small></td><td class="text-end text-nowrap"><button class="btn btn-sm btn-outline-primary me-1 py-1" onclick="iniciarEdicaoMissao('${id}', '${data}', '${safeDesc}', '${safeLocal}')"><i class="bi bi-pencil"></i></button><button class="btn btn-sm btn-${corBotao} me-1 py-1" onclick="mudarStatus('MISSOES', '${id}', '${statusBtn}')"><i class="bi ${iconeBtn}"></i></button><button class="btn btn-sm btn-outline-danger py-1" onclick="abrirConfirmacaoExclusao('MISSOES', '${id}', 'esta missão')"><i class="bi bi-trash"></i></button></td></tr>`;
           }).join('');
           document.getElementById('admin-missoes-lista').innerHTML = htmlMissoes || "<tr><td class='text-muted text-center py-3'>Nenhuma missão registrada.</td></tr>";
         }).catch(e => mostrarAviso("Erro ao carregar tabela: " + e.message, "error"));
