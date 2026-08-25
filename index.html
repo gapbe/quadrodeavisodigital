@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <script>
+      // ========================================================================
+      // ⚙️ 1. CONFIGURAÇÃO (COLE SUA NOVA URL DO APPS SCRIPT AQUI)
+      // ========================================================================
+      const OM_CONFIG = {
+        API_URL: "https://script.google.com/macros/s/AKfycbyHp1XY5B7I5fEEI64P8bl83rzf-ilrT_FGxq-e7PmdUpbLZ9628FXg1cfiP8C3NomR/exec", 
+        SIGLA: "ATIC",
+        COR_PRIMARIA: "#1A365D"
+      };
+      
+      // Construtor PWA Nativo
+      document.addEventListener("DOMContentLoaded", function() {
+        const manifest = {
+          "name": "Gestão Quadro " + OM_CONFIG.SIGLA,
+          "short_name": "Gestão " + OM_CONFIG.SIGLA,
+          "start_url": window.location.href, 
+          "display": "standalone", 
+          "background_color": "#f4f6f9",
+          "theme_color": OM_CONFIG.COR_PRIMARIA
+        };
+        const blob = new Blob([JSON.stringify(manifest)], {type: 'application/json'});
+        document.querySelector('head').insertAdjacentHTML('beforeend', `<link rel="manifest" href="${URL.createObjectURL(blob)}">`);
+      });
+    </script>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <style> body { background-color: #f4f6f9; font-family: 'Segoe UI', Tahoma, sans-serif; } </style>
+  </head>
+  <body>
+    <div class="container py-4">
+      <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+        <h3 class="fw-bold" style="color: #1A365D;"><i class="bi bi-gear-fill"></i> Gestão do Quadro PWA</h3>
+        <button class="btn btn-outline-secondary" onclick="window.location.reload()"><i class="bi bi-arrow-clockwise"></i> Atualizar</button>
+      </div>
+
+      <div class="row g-4">
+        <!-- FORMULÁRIO DE AVISOS -->
+        <div class="col-md-6">
+          <div class="card shadow-sm h-100 border-primary border-top border-4" id="card-form-aviso">
+            <div class="card-header bg-white fw-bold fs-5 text-primary" id="titulo-aviso">
+              <i class="bi bi-megaphone-fill"></i> Novo Aviso
+            </div>
+            <div class="card-body">
+              <input type="hidden" id="inp-aviso-id" value="">
+              <textarea id="inp-aviso" class="form-control mb-3" rows="3" placeholder="Digite o aviso para a tropa..."></textarea>
+              <div class="d-flex gap-2">
+                <button class="btn btn-primary w-100 fw-bold" id="btn-aviso" onclick="enviarAviso()">PUBLICAR AVISO</button>
+                <button class="btn btn-secondary w-50 fw-bold d-none" id="btn-cancelar-aviso" onclick="cancelarEdicaoAviso()">CANCELAR</button>
+              </div>
+              <hr class="my-4"><h6 class="fw-bold text-muted"><i class="bi bi-list-check"></i> Histórico de Avisos</h6>
+              <div class="table-responsive" style="max-height: 350px; overflow-y: auto;">
+                <table class="table table-sm align-middle table-hover"><tbody id="admin-avisos-lista"><tr><td class="text-center text-muted py-3">Carregando...</td></tr></tbody></table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- FORMULÁRIO DE MISSÕES -->
+        <div class="col-md-6">
+          <div class="card shadow-sm h-100 border-success border-top border-4" id="card-form-missao">
+            <div class="card-header bg-white fw-bold fs-5 text-success" id="titulo-missao">
+              <i class="bi bi-crosshair"></i> Nova Missão
+            </div>
+            <div class="card-body">
+              <input type="hidden" id="inp-missao-id" value="">
+              <div class="row g-2 mb-3">
+                <div class="col-6"><input type="date" id="inp-m-data" class="form-control"></div>
+                <div class="col-6"><input type="time" id="inp-m-hora" class="form-control"></div>
+              </div>
+              <input type="text" id="inp-m-desc" class="form-control mb-2" placeholder="Descrição (Ex: FORMATURA GERAL)">
+              <input type="text" id="inp-m-local" class="form-control mb-3" placeholder="Local / Setor">
+              <div class="d-flex gap-2">
+                <button class="btn btn-success w-100 fw-bold" id="btn-missao" onclick="enviarMissao()">AGENDAR MISSÃO</button>
+                <button class="btn btn-secondary w-50 fw-bold d-none" id="btn-cancelar-missao" onclick="cancelarEdicaoMissao()">CANCELAR</button>
+              </div>
+              <hr class="my-4"><h6 class="fw-bold text-muted"><i class="bi bi-list-check"></i> Histórico de Missões</h6>
+              <div class="table-responsive" style="max-height: 350px; overflow-y: auto;">
+                <table class="table table-sm align-middle table-hover"><tbody id="admin-missoes-lista"><tr><td class="text-center text-muted py-3">Carregando...</td></tr></tbody></table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAIS ELEGANTES -->
+    <div class="modal fade" id="modalAviso" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header bg-success text-white" id="modalAvisoHeader"><h5 class="modal-title fw-bold"><i class="bi bi-check-circle"></i> Sucesso</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body text-center fs-5 py-4" id="modalAvisoBody"></div><div class="modal-footer justify-content-center"><button type="button" class="btn btn-secondary w-50" data-bs-dismiss="modal">OK</button></div></div></div></div>
+    <div class="modal fade" id="modalConfirmacao" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content border-danger"><div class="modal-header bg-danger text-white"><h5 class="modal-title fw-bold"><i class="bi bi-exclamation-triangle"></i> Atenção</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body text-center fs-5 py-4" id="modalConfirmacaoBody"></div><div class="modal-footer d-flex justify-content-between"><button type="button" class="btn btn-secondary w-25" data-bs-dismiss="modal">Não</button><button type="button" class="btn btn-danger w-50" id="btnConfirmaExclusao">Sim, Remover</button></div></div></div></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      let modalAvisoObj, modalConfirmaObj, abaParaExcluir = null, idParaExcluir = null;
+
+      // ==========================================
+      // MOTOR DA API PWA (Substitui o google.script.run)
+      // ==========================================
+      async function chamarBackend(acao, parametros = {}) {
+        const resposta = await fetch(OM_CONFIG.API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain' },
+          body: JSON.stringify({ action: acao, ...parametros })
+        });
+        const resultado = await resposta.json();
+        if (resultado.status === "success") return resultado.data;
+        else throw new Error(resultado.message);
+      }
+
+      window.onload = function() {
+        modalAvisoObj = new bootstrap.Modal(document.getElementById('modalAviso'));
+        modalConfirmaObj = new bootstrap.Modal(document.getElementById('modalConfirmacao'));
+        carregarTabelasAdmin();
+      };
+
+      function mostrarAviso(msg, tipo = 'success') {
+        let header = document.getElementById('modalAvisoHeader');
+        if(tipo === 'error') {
+            header.className = 'modal-header bg-danger text-white';
+            header.innerHTML = '<h5 class="modal-title fw-bold"><i class="bi bi-exclamation-octagon"></i> Erro</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>';
+        } else {
+            header.className = 'modal-header bg-success text-white';
+            header.innerHTML = '<h5 class="modal-title fw-bold"><i class="bi bi-check-circle"></i> Sucesso</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>';
+        }
+        document.getElementById('modalAvisoBody').innerHTML = msg;
+        modalAvisoObj.show();
+      }
+
+      // LÓGICA DE AVISOS
+      function enviarAviso() {
+        let id = document.getElementById('inp-aviso-id').value;
+        let txt = document.getElementById('inp-aviso').value;
+        if(!txt) { mostrarAviso("⚠️ Digite um texto para o aviso.", "error"); return; }
+        let btn = document.getElementById('btn-aviso');
+        btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Processando...';
+        
+        let acao = (id === "") ? 'salvarAviso' : 'atualizarAviso';
+        let params = (id === "") ? { textoAviso: txt } : { id: id, textoAviso: txt };
+
+        chamarBackend(acao, params).then(res => {
+          cancelarEdicaoAviso(); mostrarAviso(res, 'success'); carregarTabelasAdmin();
+        }).catch(e => {
+          mostrarAviso(e.message, 'error'); btn.disabled = false; btn.innerHTML = id === "" ? 'PUBLICAR AVISO' : '<i class="bi bi-arrow-repeat"></i> ATUALIZAR AVISO';
+        });
+      }
+
+      // LÓGICA DE MISSÕES
+      function enviarMissao() {
+        let id = document.getElementById('inp-missao-id').value;
+        let dados = { data: document.getElementById('inp-m-data').value, hora: document.getElementById('inp-m-hora').value, descricao: document.getElementById('inp-m-desc').value, local: document.getElementById('inp-m-local').value };
+        if(!dados.data || !dados.descricao) { mostrarAviso("⚠️ Preencha Data e Descrição.", "error"); return; }
+        let btn = document.getElementById('btn-missao');
+        btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Processando...';
+        
+        let acao = (id === "") ? 'salvarMissao' : 'atualizarMissao';
+        let params = (id === "") ? { dados: dados } : { id: id, dados: dados };
+
+        chamarBackend(acao, params).then(res => {
+          cancelarEdicaoMissao(); mostrarAviso(res, 'success'); carregarTabelasAdmin();
+        }).catch(e => {
+          mostrarAviso(e.message, 'error'); btn.disabled = false; btn.innerHTML = id === "" ? 'AGENDAR MISSÃO' : '<i class="bi bi-arrow-repeat"></i> ATUALIZAR MISSÃO';
+        });
+      }
+
+      function iniciarEdicaoAviso(id, desc) {
+        document.getElementById('inp-aviso-id').value = id; document.getElementById('inp-aviso').value = desc;
+        document.getElementById('titulo-aviso').innerHTML = '<i class="bi bi-pencil-square"></i> Editar Aviso';
+        document.getElementById('titulo-aviso').classList.replace('text-primary', 'text-warning');
+        document.getElementById('card-form-aviso').classList.replace('border-primary', 'border-warning');
+        let btn = document.getElementById('btn-aviso'); btn.innerHTML = '<i class="bi bi-arrow-repeat"></i> ATUALIZAR AVISO'; btn.classList.replace('btn-primary', 'btn-warning');
+        document.getElementById('btn-cancelar-aviso').classList.remove('d-none');
+      }
+
+      function cancelarEdicaoAviso() {
+        document.getElementById('inp-aviso-id').value = ""; document.getElementById('inp-aviso').value = "";
+        document.getElementById('titulo-aviso').innerHTML = '<i class="bi bi-megaphone-fill"></i> Novo Aviso';
+        document.getElementById('titulo-aviso').classList.replace('text-warning', 'text-primary');
+        document.getElementById('card-form-aviso').classList.replace('border-warning', 'border-primary');
+        let btn = document.getElementById('btn-aviso'); btn.disabled = false; btn.innerHTML = 'PUBLICAR AVISO'; btn.classList.replace('btn-warning', 'btn-primary');
+        document.getElementById('btn-cancelar-aviso').classList.add('d-none');
+      }
+
+      function iniciarEdicaoMissao(id, dataStr, desc, local) {
+        document.getElementById('inp-missao-id').value = id; document.getElementById('inp-m-desc').value = desc; document.getElementById('inp-m-local').value = local;
+        let dataInput = ""; let horaInput = "";
+        if(dataStr) {
+            let partes = dataStr.split(' - ');
+            if (partes.length > 0) { let dM = partes[0].split('/'); if(dM.length === 2) dataInput = `${new Date().getFullYear()}-${dM[1]}-${dM[0]}`; }
+            if (partes.length > 1) horaInput = partes[1].trim();
+        }
+        document.getElementById('inp-m-data').value = dataInput; document.getElementById('inp-m-hora').value = horaInput;
+        document.getElementById('titulo-missao').innerHTML = '<i class="bi bi-pencil-square"></i> Editar Missão';
+        document.getElementById('titulo-missao').classList.replace('text-success', 'text-warning');
+        document.getElementById('card-form-missao').classList.replace('border-success', 'border-warning');
+        let btn = document.getElementById('btn-missao'); btn.innerHTML = '<i class="bi bi-arrow-repeat"></i> ATUALIZAR MISSÃO'; btn.classList.replace('btn-success', 'btn-warning');
+        document.getElementById('btn-cancelar-missao').classList.remove('d-none');
+      }
+
+      function cancelarEdicaoMissao() {
+        document.getElementById('inp-missao-id').value = ""; document.getElementById('inp-m-data').value = ""; document.getElementById('inp-m-hora').value = ""; document.getElementById('inp-m-desc').value = ""; document.getElementById('inp-m-local').value = "";
+        document.getElementById('titulo-missao').innerHTML = '<i class="bi bi-crosshair"></i> Nova Missão';
+        document.getElementById('titulo-missao').classList.replace('text-warning', 'text-success');
+        document.getElementById('card-form-missao').classList.replace('border-warning', 'border-success');
+        let btn = document.getElementById('btn-missao'); btn.disabled = false; btn.innerHTML = 'AGENDAR MISSÃO'; btn.classList.replace('btn-warning', 'btn-success');
+        document.getElementById('btn-cancelar-missao').classList.add('d-none');
+      }
+
+      function carregarTabelasAdmin() {
+        chamarBackend('obterDadosSistema').then(dados => {
+          let htmlAvisos = dados.avisos.map(a => {
+            let id = a[0], status = a[1].toUpperCase(), data = a[2], desc = a[3];
+            let isAtivo = (status === 'ATIVO');
+            let corBadge = isAtivo ? 'success' : 'secondary'; let statusBtn = isAtivo ? 'INATIVO' : 'ATIVO'; let iconeBtn = isAtivo ? 'bi-toggle-on' : 'bi-toggle-off'; let corBotao = isAtivo ? 'outline-success' : 'outline-secondary';
+            let safeDesc = desc.replace(/'/g, "\\'").replace(/"/g, "&quot;");
+            return `<tr><td><span class="badge bg-${corBadge} mb-1">${status}</span><br><small class="text-muted" style="font-size:0.75rem;">${data}</small></td><td><span class="${!isAtivo ? 'text-decoration-line-through text-muted' : ''}">${desc}</span></td><td class="text-end text-nowrap"><button class="btn btn-sm btn-outline-primary me-1" onclick="iniciarEdicaoAviso('${id}', '${safeDesc}')"><i class="bi bi-pencil"></i></button><button class="btn btn-sm btn-${corBotao} me-1" onclick="mudarStatus('AVISOS', '${id}', '${statusBtn}')"><i class="bi ${iconeBtn}"></i></button><button class="btn btn-sm btn-outline-danger" onclick="abrirConfirmacaoExclusao('AVISOS', '${id}', 'este aviso')"><i class="bi bi-trash"></i></button></td></tr>`;
+          }).join('');
+          document.getElementById('admin-avisos-lista').innerHTML = htmlAvisos || "<tr><td class='text-muted text-center py-3'>Nenhum aviso registrado.</td></tr>";
+
+          let htmlMissoes = dados.missoes.map(m => {
+            let id = m[0], status = m[1].toUpperCase(), data = m[2], desc = m[3], local = m[4];
+            if (status === 'ATIVO') status = 'PENDENTE'; if (status === 'INATIVO') status = 'EXECUTADA';
+            let isPendente = (status === 'PENDENTE');
+            let corBadge = isPendente ? 'warning text-dark' : 'success'; let statusBtn = isPendente ? 'EXECUTADA' : 'PENDENTE'; let iconeBtn = isPendente ? 'bi-check2-circle' : 'bi-arrow-counterclockwise'; let corBotao = isPendente ? 'outline-success' : 'outline-primary';
+            let safeDesc = desc.replace(/'/g, "\\'").replace(/"/g, "&quot;"); let safeLocal = local ? local.replace(/'/g, "\\'").replace(/"/g, "&quot;") : '';
+            return `<tr><td><span class="badge bg-${corBadge} mb-1">${status}</span><br><span class="badge bg-dark">${data}</span></td><td><b class="${!isPendente ? 'text-decoration-line-through text-muted' : ''}">${desc}</b><br><small class="text-secondary"><i class="bi bi-geo-alt"></i> ${local || '-'}</small></td><td class="text-end text-nowrap"><button class="btn btn-sm btn-outline-primary me-1" onclick="iniciarEdicaoMissao('${id}', '${data}', '${safeDesc}', '${safeLocal}')"><i class="bi bi-pencil"></i></button><button class="btn btn-sm btn-${corBotao} me-1" onclick="mudarStatus('MISSOES', '${id}', '${statusBtn}')"><i class="bi ${iconeBtn}"></i></button><button class="btn btn-sm btn-outline-danger" onclick="abrirConfirmacaoExclusao('MISSOES', '${id}', 'esta missão')"><i class="bi bi-trash"></i></button></td></tr>`;
+          }).join('');
+          document.getElementById('admin-missoes-lista').innerHTML = htmlMissoes || "<tr><td class='text-muted text-center py-3'>Nenhuma missão registrada.</td></tr>";
+        }).catch(e => mostrarAviso("Erro ao carregar tabela: " + e.message, "error"));
+      }
+
+      function mudarStatus(aba, id, novoStatus) {
+        document.body.style.cursor = 'wait';
+        chamarBackend('alterarStatusRegistro', { abaNome: aba, idRegistro: id, novoStatus: novoStatus })
+          .then(res => { document.body.style.cursor = 'default'; mostrarAviso(res, 'success'); carregarTabelasAdmin(); })
+          .catch(e => { document.body.style.cursor = 'default'; mostrarAviso(e.message, 'error'); });
+      }
+
+      function abrirConfirmacaoExclusao(aba, id, textoTipo) {
+        abaParaExcluir = aba; idParaExcluir = id;
+        document.getElementById('modalConfirmacaoBody').innerHTML = `ATENÇÃO: Deseja excluir <b>${textoTipo}</b> PERMANENTEMENTE da planilha? Essa ação não pode ser desfeita.`;
+        modalConfirmaObj.show();
+      }
+
+      document.getElementById('btnConfirmaExclusao').addEventListener('click', function() {
+        modalConfirmaObj.hide(); document.body.style.cursor = 'wait';
+        chamarBackend('excluirRegistro', { abaNome: abaParaExcluir, idRegistro: idParaExcluir })
+          .then(res => { document.body.style.cursor = 'default'; mostrarAviso(res, 'success'); carregarTabelasAdmin(); })
+          .catch(e => { document.body.style.cursor = 'default'; mostrarAviso(e.message, 'error'); });
+      });
+    </script>
+  </body>
+</html>
