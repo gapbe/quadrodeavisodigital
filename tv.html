@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <script>
+      const OM_CONFIG = {
+        API_URL: "https://script.google.com/macros/s/AKfycbyHp1XY5B7I5fEEI64P8bl83rzf-ilrT_FGxq-e7PmdUpbLZ9628FXg1cfiP8C3NomR/exec", 
+        SIGLA: "ATIC",
+        COR_PRIMARIA: "#0f172a"
+      };
+      
+      document.addEventListener("DOMContentLoaded", function() {
+        const manifest = {
+          "name": "TV Quadro " + OM_CONFIG.SIGLA,
+          "short_name": "TV " + OM_CONFIG.SIGLA,
+          "start_url": window.location.href, 
+          "display": "fullscreen", 
+          "background_color": "#0f172a",
+          "theme_color": OM_CONFIG.COR_PRIMARIA
+        };
+        const blob = new Blob([JSON.stringify(manifest)], {type: 'application/json'});
+        document.querySelector('head').insertAdjacentHTML('beforeend', `<link rel="manifest" href="${URL.createObjectURL(blob)}">`);
+      });
+    </script>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    
+    <style>
+      body { background-color: #0f172a; color: #f8fafc; font-family: 'Segoe UI', Tahoma, sans-serif; overflow: hidden; margin: 0; padding: 0;}
+      .tv-header { background-color: #1e293b; border-bottom: 4px solid #3b82f6; padding: 0 1.5vw; height: 8vh; display: flex; align-items: center; justify-content: space-between;}
+      .tv-column-title { text-transform: uppercase; letter-spacing: 2px; font-weight: bold; border-bottom: 2px solid #475569; padding-bottom: 0.8vh; text-align: center; font-size: 2.3vh; margin-bottom: 1vh; color: #94a3b8;}
+      .tv-quadro { height: 92vh; border-right: 2px solid #334155; padding: 1vh 1.5vw; overflow: hidden; }
+      .tv-quadro:last-child { border-right: none; }
+      .aviso-card { background-color: rgba(59, 130, 246, 0.1); border-left: 5px solid #3b82f6; border-radius: 4px; display: flex; align-items: center;}
+      .missao-card { background-color: rgba(16, 185, 129, 0.1); border-left: 5px solid #10b981; border-radius: 4px; transition: all 0.3s ease;}
+      .missao-data { color: #10b981; font-weight: bold; }
+      .missao-titulo { font-weight: bold; margin-top: 0.3vh; }
+      .missao-local { color: #cbd5e1; margin-top: 0.4vh; opacity: 0.8;}
+      .tabela-efetivo { width: 100%; border-collapse: collapse; }
+      .tabela-efetivo th { background-color: rgba(255,255,255,0.05); color: #cbd5e1; font-size: 1.4vh; padding: 0.4vh; text-transform: uppercase; border-bottom: 2px solid #475569;}
+      .tabela-efetivo td { border-bottom: 1px solid rgba(100, 116, 139, 0.2); vertical-align: middle; line-height: 1.1;}
+
+      @keyframes pulseGlow { 0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); background-color: rgba(16, 185, 129, 0.1); } 50% { box-shadow: 0 0 2vh 0.5vh rgba(16, 185, 129, 0.5); background-color: rgba(16, 185, 129, 0.25); border-left-color: #34d399; } 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); background-color: rgba(16, 185, 129, 0.1); } }
+      @keyframes blinkText { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
+      .missao-hoje { animation: pulseGlow 2s infinite ease-in-out; border-left-width: 8px !important; }
+      .badge-blink { animation: blinkText 1.5s infinite ease-in-out; }
+    </style>
+  </head>
+  <body>
+    
+    <div class="tv-header">
+      <div style="width: 50px;"></div>
+      <h3 class="mb-0 fw-bold" style="font-size: 2.5vh;"><i class="bi bi-tv text-primary"></i> QUADRO DE AVISOS ATIC</h3>
+      <div id="relogio-tv" class="text-info fw-bold d-flex align-items-center"></div>
+    </div>
+
+    <div class="container-fluid px-0">
+      <div class="row g-0">
+        
+        <div class="col-4 tv-quadro">
+          <div class="d-flex justify-content-between align-items-end mb-1 border-bottom border-secondary pb-1" style="border-width: 2px !important; border-color: #475569 !important;">
+            <h4 class="mb-0 text-uppercase fw-bold" style="letter-spacing: 2px; font-size: 2.2vh; color: #94a3b8;">Controle do Efetivo</h4>
+            <span class="badge bg-danger" id="qtd-alteracoes" style="font-size: 1.6vh;">0 Alterações</span>
+          </div>
+          <table class="tabela-efetivo mt-1">
+            <thead><tr><th>Posto/Nome</th><th class="text-center">Situação</th></tr></thead>
+            <tbody id="tv-efetivo-lista"><tr><td colspan="2" class="text-center text-muted py-3" style="font-size: 2vh;">A ler matriz de dados...</td></tr></tbody>
+          </table>
+        </div>
+        
+        <div class="col-4 tv-quadro">
+          <h4 class="tv-column-title" style="color: #60a5fa;">Avisos</h4>
+          <div id="tv-avisos-lista"></div>
+        </div>
+        
+        <div class="col-4 tv-quadro">
+          <h4 class="tv-column-title" style="color: #34d399;">Missões</h4>
+          <div id="tv-missoes-lista"></div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      async function chamarBackend(acao, parametros = {}) {
+        const resposta = await fetch(OM_CONFIG.API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain' },
+          body: JSON.stringify({ action: acao, ...parametros })
+        });
+        const resultado = await resposta.json();
+        if (resultado.status === "success") return resultado.data;
+        else throw new Error(resultado.message);
+      }
+
+      function atualizarPainel() {
+        chamarBackend('obterDadosSistema').then(dados => {
+          
+          let efetivoTotal = dados.efetivo || [];
+          let totalAlteracoes = efetivoTotal.filter(m => m.situacao !== 'P' && m.situacao !== 'PENDENTE').length;
+          document.getElementById('qtd-alteracoes').innerText = `${totalAlteracoes} Alterações`;
+
+          let qtdLinhasVirtuais = 0;
+          efetivoTotal.forEach(m => { qtdLinhasVirtuais += 1; if (m.justificativa) qtdLinhasVirtuais += 0.75; });
+          if (qtdLinhasVirtuais === 0) qtdLinhasVirtuais = 1;
+
+          let altEf = 75 / qtdLinhasVirtuais; 
+          if (altEf > 3.2) altEf = 3.2; if (altEf < 1.0) altEf = 1.0; 
+
+          let padEf = (altEf * 0.10).toFixed(2) + 'vh';
+          let fontNomeEf = (altEf * 0.45).toFixed(2) + 'vh';
+          let fontJustEf = (altEf * 0.35).toFixed(2) + 'vh';
+          let fontBadgeEf = (altEf * 0.40).toFixed(2) + 'vh';
+
+          let htmlEfetivo = efetivoTotal.map(m => {
+            let sit = m.situacao || '-'; let just = m.justificativa || '';
+            let corBadge = "bg-secondary";
+            if(sit === 'P') corBadge = "bg-success"; else if(sit === 'F') corBadge = "bg-danger"; else if (['FÉR', 'LIC'].includes(sit)) corBadge = "bg-warning text-dark"; else if (['SV', 'SSV', 'FORM', 'INST', 'COM'].includes(sit)) corBadge = "bg-primary"; else if (sit === 'PENDENTE' || sit === '-') corBadge = "bg-light text-dark border border-secondary";
+            let htmlJustificativa = just ? `<div style="font-size: ${fontJustEf}; color: #38bdf8; margin-top: 0.1vh;"><i class="bi bi-arrow-return-right"></i> ${just}</div>` : '';
+            return `<tr><td style="padding: ${padEf} 0.5vw;"><div style="font-size: ${fontNomeEf}; font-weight: bold; letter-spacing: 0.3px;">${m.postoGrad} ${m.nomeGuerra}</div>${htmlJustificativa}</td><td class="text-center" style="padding: ${padEf} 0.5vw;"><span class="badge shadow-sm ${corBadge}" style="font-size: ${fontBadgeEf}; padding: 0.3vh 0.8vw; border-radius: 4px;">${sit}</span></td></tr>`;
+          }).join('');
+          
+          if (efetivoTotal.length === 0) htmlEfetivo = `<tr><td colspan="2" class="text-center text-muted py-5" style="font-size: 2vh;">Efetivo não encontrado.</td></tr>`;
+          document.getElementById('tv-efetivo-lista').innerHTML = htmlEfetivo;
+
+          let avisos = dados.avisos.filter(a => a[1] && a[1].toString().trim().toUpperCase() === 'ATIVO');
+          let qtdAvisos = avisos.length === 0 ? 1 : avisos.length;
+          let altAv = 80 / qtdAvisos; if (altAv > 8) altAv = 8; if (altAv < 2.5) altAv = 2.5; 
+          let padAv = (altAv * 0.15).toFixed(2) + 'vh'; let margAv = (altAv * 0.15).toFixed(2) + 'vh'; let fontAv = (altAv * 0.32).toFixed(2) + 'vh';
+
+          document.getElementById('tv-avisos-lista').innerHTML = avisos.map(a => `<div class="aviso-card shadow" style="padding: ${padAv}; margin-bottom: ${margAv}; font-size: ${fontAv};"><i class="bi bi-megaphone-fill me-2 text-primary" style="font-size: 1.2em;"></i> ${a[3]}</div>`).join('') || '<div class="text-center text-muted mt-5" style="font-size: 2.2vh;">SEM AVISOS PENDENTES</div>';
+
+          let hoje = new Date(); let diaAtualStr = String(hoje.getDate()).padStart(2, '0') + '/' + String(hoje.getMonth() + 1).padStart(2, '0');
+          let missoes = dados.missoes.filter(m => { if (!m[1]) return false; let status = m[1].toString().trim().toUpperCase(); return status === 'ATIVO' || status === 'PENDENTE'; });
+          
+          let qtdMissoes = missoes.length === 0 ? 1 : missoes.length;
+          let altMi = 80 / qtdMissoes; if (altMi > 11) altMi = 11; if (altMi < 3.5) altMi = 3.5;
+          let padMi = (altMi * 0.12).toFixed(2) + 'vh'; let margMi = (altMi * 0.12).toFixed(2) + 'vh'; let fDataMi = (altMi * 0.20).toFixed(2) + 'vh'; let fTitMi = (altMi * 0.25).toFixed(2) + 'vh'; let fLocMi = (altMi * 0.18).toFixed(2) + 'vh';
+
+          document.getElementById('tv-missoes-lista').innerHTML = missoes.map(m => {
+            let dataMissao = m[2] ? m[2].toString().trim() : '';
+            let isHoje = dataMissao.includes(diaAtualStr); let classePulse = isHoje ? 'missao-hoje' : ''; let badgeAlerta = isHoje ? `<span class="badge bg-danger ms-2 badge-blink" style="font-size: ${fLocMi}; vertical-align: middle;">HOJE</span>` : '';
+            return `<div class="missao-card shadow ${classePulse}" style="padding: ${padMi}; margin-bottom: ${margMi};"><div class="missao-data" style="font-size: ${fDataMi};"><i class="bi bi-calendar-event"></i> ${dataMissao} ${badgeAlerta}</div><div class="missao-titulo" style="font-size: ${fTitMi};">${m[3]}</div><div class="missao-local" style="font-size: ${fLocMi};"><i class="bi bi-geo-alt-fill"></i> ${m[4]}</div></div>`;
+          }).join('') || '<div class="text-center text-muted mt-5" style="font-size: 2.2vh;">SEM MISSÕES AGENDADAS</div>';
+          
+        }).catch(e => console.error("Erro na atualização da TV:", e));
+      }
+
+      function atualizarRelogioEData() {
+        let agora = new Date();
+        let opcoesData = { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' };
+        document.getElementById('relogio-tv').innerHTML = `<span style="font-size: 1.8vh; color: #94a3b8; margin-right: 1vw;">${agora.toLocaleDateString('pt-BR', opcoesData).toUpperCase()}</span><span style="font-size: 2.8vh;"><i class="bi bi-clock"></i> ${agora.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'})}</span>`;
+      }
+
+      window.onload = () => { atualizarPainel(); atualizarRelogioEData(); setInterval(atualizarPainel, 180000); setInterval(atualizarRelogioEData, 1000); };
+    </script>
+  </body>
+</html>
