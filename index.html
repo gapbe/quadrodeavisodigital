@@ -81,7 +81,7 @@
     <!-- CABEÇALHO ESTILO APLICATIVO NATIVO -->
     <div class="app-header shadow-sm sticky-top">
       <div class="d-flex justify-content-between align-items-center">
-        <h5 class="mb-0 fw-bold"><i class="bi bi-gear-fill"></i> Gestão ATIC</h5>
+        <h5 class="mb-0 fw-bold"><i class="bi bi-gear-fill"></i> Gestão Quadro de Avisos ATIC</h5>
         <button class="btn btn-sm btn-outline-light border-0" onclick="window.location.reload()"><i class="bi bi-arrow-clockwise fs-5"></i></button>
       </div>
     </div>
@@ -268,6 +268,23 @@
             return `<tr><td><span class="badge bg-${corBadge} mb-1">${status}</span><br><small class="text-muted" style="font-size:0.75rem;">${data}</small></td><td><span class="${!isAtivo ? 'text-decoration-line-through text-muted' : ''}">${desc}</span></td><td class="text-end text-nowrap"><button class="btn btn-sm btn-outline-primary me-1 py-1" onclick="iniciarEdicaoAviso('${id}', '${safeDesc}')"><i class="bi bi-pencil"></i></button><button class="btn btn-sm btn-${corBotao} me-1 py-1" onclick="mudarStatus('AVISOS', '${id}', '${statusBtn}')"><i class="bi ${iconeBtn}"></i></button><button class="btn btn-sm btn-outline-danger py-1" onclick="abrirConfirmacaoExclusao('AVISOS', '${id}', 'este aviso')"><i class="bi bi-trash"></i></button></td></tr>`;
           }).join('');
           document.getElementById('admin-avisos-lista').innerHTML = htmlAvisos || "<tr><td class='text-muted text-center py-3'>Nenhum aviso registrado.</td></tr>";
+
+          // ==============================================================
+          // ORDENAÇÃO CRONOLÓGICA DAS MISSÕES (Data e Hora Crescente)
+          // ==============================================================
+          dados.missoes.sort((a, b) => {
+            function obterValorData(str) {
+              if (!str) return 999999999999;
+              let partes = str.toString().split(' - ');
+              let dM = partes[0].trim().split('/');
+              let dia = dM[0] ? dM[0].padStart(2, '0') : '99';
+              let mes = dM[1] ? dM[1].padStart(2, '0') : '99';
+              let ano = dM[2] ? dM[2] : new Date().getFullYear().toString();
+              let hora = partes[1] ? partes[1].trim().replace(':', '') : '9999';
+              return parseInt(ano + mes + dia + hora, 10);
+            }
+            return obterValorData(a[2]) - obterValorData(b[2]);
+          });
 
           let htmlMissoes = dados.missoes.map(m => {
             let id = m[0], status = m[1].toUpperCase(), data = m[2], desc = m[3], local = m[4];
