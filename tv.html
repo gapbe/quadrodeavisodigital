@@ -3,9 +3,11 @@
   <head>
     <meta charset="UTF-8">
     <script>
+      // ========================================================================
+      // ⚙️ 1. CONFIGURAÇÃO (COLE SUA NOVA URL DO APPS SCRIPT AQUI)
+      // ========================================================================
       const OM_CONFIG = {
-        // ⚠️ ATENÇÃO: COLE SUA URL DO APPS SCRIPT ABAIXO
-        API_URL: "https://script.google.com/macros/s/AKfycbyHp1XY5B7I5fEEI64P8bl83rzf-ilrT_FGxq-e7PmdUpbLZ9628FXg1cfiP8C3NomR/exec", 
+        API_URL: "https://script.google.com/macros/s/AKfycbyHp1XY5B7I5fEEI64P8bl83rzf-ilrT_FGxq-e7PmdUpbLZ9628FXg1cfiP8C3NomR/exec", // DEVE TERMINAR EM /exec
         SIGLA: "ATIC",
         COR_PRIMARIA: "#0f172a"
       };
@@ -29,18 +31,19 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     
     <style>
-      /* CSS OTIMIZADO PARA SMART TVs */
+      /* CSS OTIMIZADO PARA SMART TVs (Big Screen Mode) */
       * { box-sizing: border-box; }
       
       html, body { 
         background-color: #0f172a; 
         color: #f8fafc; 
         font-family: 'Segoe UI', Tahoma, sans-serif; 
-        overflow: hidden; 
+        overflow: hidden; /* Bloqueio Total de Rolagem */
         margin: 0; 
         padding: 0;
         width: 100vw;
         height: 100vh;
+        /* TRAVA ANTI-DISTORÇÃO PARA NAVEGADORES DE TV */
         -webkit-text-size-adjust: 100%;
         -moz-text-size-adjust: 100%;
         text-size-adjust: 100%;
@@ -78,22 +81,25 @@
     <div class="container-fluid px-0">
       <div class="row g-0">
         
+        <!-- COLUNA 1: EFETIVO -->
         <div class="col-4 tv-quadro">
           <div class="d-flex justify-content-between align-items-end mb-2 border-bottom border-secondary pb-1" style="border-width: 2px !important; border-color: #475569 !important;">
             <h4 class="mb-0 text-uppercase fw-bold" style="letter-spacing: 2px; font-size: 2.2vh; color: #94a3b8;">Controle do Efetivo</h4>
             <span class="badge bg-danger" id="qtd-alteracoes" style="font-size: 1.6vh;">0 Alterações</span>
           </div>
           <table class="tabela-efetivo mt-1">
-            <thead><tr><th>Posto/Grad/Nome</th><th class="text-center">Situação</th></tr></thead>
+            <thead><tr><th>Posto/Nome</th><th class="text-center">Situação</th></tr></thead>
             <tbody id="tv-efetivo-lista"><tr><td colspan="2" class="text-center text-muted py-3" style="font-size: 2vh;">A ler matriz de dados...</td></tr></tbody>
           </table>
         </div>
         
+        <!-- COLUNA 2: AVISOS -->
         <div class="col-4 tv-quadro">
           <h4 class="tv-column-title" style="color: #60a5fa;">Avisos</h4>
           <div id="tv-avisos-lista"></div>
         </div>
         
+        <!-- COLUNA 3: MISSÕES -->
         <div class="col-4 tv-quadro">
           <h4 class="tv-column-title" style="color: #34d399;">Missões</h4>
           <div id="tv-missoes-lista"></div>
@@ -102,6 +108,9 @@
     </div>
 
     <script>
+      // ==========================================
+      // MOTOR DA API PWA (Substitui o google.script.run)
+      // ==========================================
       async function chamarBackend(acao, parametros = {}) {
         const resposta = await fetch(OM_CONFIG.API_URL, {
           method: 'POST',
@@ -116,13 +125,12 @@
       function atualizarPainel() {
         chamarBackend('obterDadosSistema').then(dados => {
           
-          // Constante universal para converter cálculos relativos em PIXELS ABSOLUTOS
-          // Isso obriga os navegadores de TV a respeitarem o tamanho forçado.
+          // CONVERSÃO DE TELA GIGANTE: Obtém a altura física exata da TV
           let vhPx = window.innerHeight / 100;
           let vwPx = window.innerWidth / 100;
 
           // ==========================================
-          // COLUNA 1: EFETIVO
+          // COLUNA 1: EFETIVO (ESCALA POR PIXEL ABSOLUTO)
           // ==========================================
           let efetivoTotal = dados.efetivo || [];
           let totalAlteracoes = efetivoTotal.filter(m => m.situacao !== 'P' && m.situacao !== 'PENDENTE').length;
@@ -136,9 +144,9 @@
           if (altEf > 6.0) altEf = 6.0; 
           if (altEf < 1.0) altEf = 1.0; 
 
-          // Conversão para PX
+          // Conversão de Altura para PIXEL (Força a TV a respeitar)
           let padEf = (altEf * 0.12 * vhPx).toFixed(0) + 'px';
-          let padEfW = (0.5 * vwPx).toFixed(0) + 'px'; // 0.5vw em px
+          let padEfW = (0.5 * vwPx).toFixed(0) + 'px';
           let fontNomeEf = (altEf * 0.45 * vhPx).toFixed(0) + 'px';
           let fontJustEf = (altEf * 0.35 * vhPx).toFixed(0) + 'px';
           let fontBadgeEf = (altEf * 0.42 * vhPx).toFixed(0) + 'px';
@@ -151,6 +159,7 @@
             if(sit === 'P') corBadge = "bg-success"; else if(sit === 'F') corBadge = "bg-danger"; else if (['FÉR', 'LIC'].includes(sit)) corBadge = "bg-warning text-dark"; else if (['SV', 'SSV', 'FORM', 'INST', 'COM'].includes(sit)) corBadge = "bg-primary"; else if (sit === 'PENDENTE' || sit === '-') corBadge = "bg-light text-dark border border-secondary";
             
             let htmlJustificativa = just ? `<div style="font-size: ${fontJustEf}; color: #38bdf8; margin-top: 2px;"><i class="bi bi-arrow-return-right"></i> ${just}</div>` : '';
+            
             return `<tr><td style="padding: ${padEf} ${padEfW};"><div style="font-size: ${fontNomeEf}; font-weight: bold; letter-spacing: 0.3px;">${m.postoGrad} ${m.nomeGuerra}</div>${htmlJustificativa}</td><td class="text-center" style="padding: ${padEf} ${padEfW};"><span class="badge shadow-sm ${corBadge}" style="font-size: ${fontBadgeEf}; padding: ${badgePadY} ${badgePadX}; border-radius: 4px;">${sit}</span></td></tr>`;
           }).join('');
           
@@ -158,7 +167,7 @@
           document.getElementById('tv-efetivo-lista').innerHTML = htmlEfetivo;
 
           // ==========================================
-          // COLUNA 2: AVISOS
+          // COLUNA 2: AVISOS (ESCALA POR PIXEL ABSOLUTO)
           // ==========================================
           let avisos = dados.avisos.filter(a => a[1] && a[1].toString().trim().toUpperCase() === 'ATIVO');
           let qtdAvisos = avisos.length === 0 ? 1 : avisos.length;
@@ -174,7 +183,7 @@
           document.getElementById('tv-avisos-lista').innerHTML = avisos.map(a => `<div class="aviso-card shadow" style="padding: ${padAv}; margin-bottom: ${margAv}; font-size: ${fontAv};"><i class="bi bi-megaphone-fill me-3 text-primary" style="font-size: 1.3em;"></i> <div>${a[3]}</div></div>`).join('') || '<div class="text-center text-muted mt-5" style="font-size: 20px;">SEM AVISOS PENDENTES</div>';
 
           // ==========================================
-          // COLUNA 3: MISSÕES
+          // COLUNA 3: MISSÕES (ESCALA POR PIXEL ABSOLUTO)
           // ==========================================
           let hoje = new Date(); let diaAtualStr = String(hoje.getDate()).padStart(2, '0') + '/' + String(hoje.getMonth() + 1).padStart(2, '0');
           let missoes = dados.missoes.filter(m => { if (!m[1]) return false; let status = m[1].toString().trim().toUpperCase(); return status === 'ATIVO' || status === 'PENDENTE'; });
@@ -193,6 +202,7 @@
           document.getElementById('tv-missoes-lista').innerHTML = missoes.map(m => {
             let dataMissao = m[2] ? m[2].toString().trim() : '';
             let isHoje = dataMissao.includes(diaAtualStr); let classePulse = isHoje ? 'missao-hoje' : ''; let badgeAlerta = isHoje ? `<span class="badge bg-danger ms-2 badge-blink" style="font-size: ${fLocMi}; padding: 2px 6px;">HOJE</span>` : '';
+            
             return `<div class="missao-card shadow ${classePulse}" style="padding: ${padMi}; margin-bottom: ${margMi};"><div class="missao-data" style="font-size: ${fDataMi};"><i class="bi bi-calendar-event"></i> ${dataMissao} ${badgeAlerta}</div><div class="missao-titulo" style="font-size: ${fTitMi};">${m[3]}</div><div class="missao-local" style="font-size: ${fLocMi};"><i class="bi bi-geo-alt-fill"></i> ${m[4]}</div></div>`;
           }).join('') || '<div class="text-center text-muted mt-5" style="font-size: 20px;">SEM MISSÕES AGENDADAS</div>';
           
@@ -209,7 +219,7 @@
         atualizarPainel(); 
         atualizarRelogioEData(); 
         
-        // Atualização Silenciosa a cada 3 minutos mantida!
+        // Mantida a Atualização Silenciosa a cada 3 minutos (180.000 ms)
         setInterval(atualizarPainel, 180000); 
         setInterval(atualizarRelogioEData, 1000); 
       };
