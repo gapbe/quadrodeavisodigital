@@ -31,64 +31,41 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     
     <style>
-      /* CSS BLINDADO PARA SMART TVS */
-      /* 1. Extingue fisicamente qualquer barra de rolagem */
+      /* CSS BLINDADO - CONTROLE TOTAL DE OVERFLOW */
       ::-webkit-scrollbar { display: none !important; }
       
       body { 
-        background-color: #0f172a; 
-        color: #f8fafc; 
-        font-family: 'Segoe UI', Tahoma, sans-serif; 
-        overflow: hidden !important; 
-        margin: 0; 
-        padding: 0; 
-        height: 100vh;
-        width: 100vw;
-        /* 2. Trava a inflação automática de texto da TV */
-        -webkit-text-size-adjust: none;
-        -moz-text-size-adjust: none;
-        text-size-adjust: none;
+        background-color: #0f172a; color: #f8fafc; font-family: 'Segoe UI', Tahoma, sans-serif; 
+        overflow: hidden !important; margin: 0; padding: 0; height: 100vh; width: 100vw;
+        -webkit-text-size-adjust: none; -moz-text-size-adjust: none; text-size-adjust: none;
       }
       
       .tv-header { background-color: #1e293b; border-bottom: 4px solid #3b82f6; padding: 0 1.5vw; height: 8vh; display: flex; align-items: center; justify-content: space-between;}
       .tv-column-title { text-transform: uppercase; letter-spacing: 2px; font-weight: bold; border-bottom: 2px solid #475569; padding-bottom: 0.8vh; text-align: center; font-size: 2.3vh; margin-bottom: 1vh; color: #94a3b8;}
-      
-      .tv-quadro { height: 92vh; border-right: 2px solid #334155; padding: 1vh 1.5vw; overflow: hidden; }
+      .tv-quadro { height: 92vh; border-right: 2px solid #334155; padding: 1vh 1.5vw; }
       .tv-quadro:last-child { border-right: none; }
 
-      /* Bases Visuais dos Cards */
-      .aviso-card { background-color: rgba(59, 130, 246, 0.1); border-left: 5px solid #3b82f6; border-radius: 4px; display: flex; align-items: center;}
-      .missao-card { background-color: rgba(16, 185, 129, 0.1); border-left: 5px solid #10b981; border-radius: 4px; transition: all 0.3s ease;}
-      .missao-data { color: #10b981; font-weight: bold; }
-      .missao-titulo { font-weight: bold; margin-top: 0.3vh; }
-      .missao-local { color: #cbd5e1; margin-top: 0.4vh; opacity: 0.8;}
+      /* Bases Visuais Proporcionais (Usando 'em' para escala perfeita no motor JS) */
+      .aviso-card { background-color: rgba(59, 130, 246, 0.1); border-left: 5px solid #3b82f6; border-radius: 4px; display: flex; align-items: center; padding: 0.8em; margin-bottom: 0.8em; font-size: 1em;}
+      .missao-card { background-color: rgba(16, 185, 129, 0.1); border-left: 5px solid #10b981; border-radius: 4px; padding: 0.8em; margin-bottom: 0.8em; font-size: 1em;}
+      .missao-data { color: #10b981; font-weight: bold; font-size: 0.85em;}
+      .missao-titulo { font-weight: bold; margin-top: 0.3em; font-size: 1.15em;}
+      .missao-local { color: #cbd5e1; margin-top: 0.4em; opacity: 0.8; font-size: 0.8em;}
+      .badge-blink { font-size: 0.85em; padding: 0.2em 0.6em; vertical-align: middle; }
 
       /* TABELA BASE EFETIVO */
       .tabela-efetivo { width: 100%; border-collapse: collapse; }
-      .tabela-efetivo th { background-color: rgba(255,255,255,0.05); color: #cbd5e1; font-size: 1.4vh; padding: 0.4vh; text-transform: uppercase; border-bottom: 2px solid #475569;}
-      .tabela-efetivo td { border-bottom: 1px solid rgba(100, 116, 139, 0.2); vertical-align: middle; line-height: 1.1;}
+      .tabela-efetivo th { background-color: rgba(255,255,255,0.05); color: #cbd5e1; font-size: 0.9em; padding: 0.5em; text-transform: uppercase; border-bottom: 2px solid #475569;}
+      .tabela-efetivo td { border-bottom: 1px solid rgba(100, 116, 139, 0.2); vertical-align: middle; line-height: 1.1; padding: 0.3em 0.5vw;}
+      .efetivo-nome { font-size: 1.1em; font-weight: bold; letter-spacing: 0.3px; }
+      .efetivo-just { font-size: 0.85em; color: #38bdf8; margin-top: 0.2em; }
+      .badge-sit { font-size: 0.9em; padding: 0.3em 0.8em; border-radius: 4px; }
 
-      /* ========================================== */
-      /* ANIMAÇÕES TÁTICAS (ALERTA DE HOJE)         */
-      /* ========================================== */
-      @keyframes pulseGlow {
-        0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); background-color: rgba(16, 185, 129, 0.1); }
-        50% { box-shadow: 0 0 2vh 0.5vh rgba(16, 185, 129, 0.5); background-color: rgba(16, 185, 129, 0.25); border-left-color: #34d399; }
-        100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); background-color: rgba(16, 185, 129, 0.1); }
-      }
-      
-      @keyframes blinkText {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.2; }
-      }
-
-      .missao-hoje {
-        animation: pulseGlow 2s infinite ease-in-out;
-        border-left-width: 8px !important;
-      }
-      .badge-blink {
-        animation: blinkText 1.5s infinite ease-in-out;
-      }
+      /* ANIMAÇÕES TÁTICAS */
+      @keyframes pulseGlow { 0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); background-color: rgba(16, 185, 129, 0.1); } 50% { box-shadow: 0 0 2vh 0.5vh rgba(16, 185, 129, 0.5); background-color: rgba(16, 185, 129, 0.25); border-left-color: #34d399; } 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); background-color: rgba(16, 185, 129, 0.1); } }
+      @keyframes blinkText { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
+      .missao-hoje { animation: pulseGlow 2s infinite ease-in-out; border-left-width: 8px !important; }
+      .badge-blink-anim { animation: blinkText 1.5s infinite ease-in-out; }
     </style>
   </head>
   <body>
@@ -103,35 +80,41 @@
       <div class="row g-0">
         
         <!-- COLUNA 1: CONTROLE DO EFETIVO -->
-        <div class="col-4 tv-quadro">
+        <div class="col-4 tv-quadro d-flex flex-column">
           <div class="d-flex justify-content-between align-items-end mb-1 border-bottom border-secondary pb-1" style="border-width: 2px !important; border-color: #475569 !important;">
             <h4 class="mb-0 text-uppercase fw-bold" style="letter-spacing: 2px; font-size: 2.2vh; color: #94a3b8;">Controle do Efetivo</h4>
             <span class="badge bg-danger" id="qtd-alteracoes" style="font-size: 1.6vh;">0 Alterações</span>
           </div>
-
-          <table class="tabela-efetivo mt-1">
-            <thead>
-              <tr>
-                <th>Posto/Grad/Nome</th>
-                <th class="text-center">Situação</th>
-              </tr>
-            </thead>
-            <tbody id="tv-efetivo-lista">
-              <tr><td colspan="2" class="text-center text-muted py-3" style="font-size: 2vh;">A ler matriz de dados...</td></tr>
-            </tbody>
-          </table>
+          <!-- WRAPPER PARA O MOTOR MEDIR -->
+          <div id="wrapper-efetivo" style="flex: 1; overflow: hidden; position: relative;">
+            <table id="content-efetivo" class="tabela-efetivo mt-1">
+              <thead>
+                <tr>
+                  <th>Posto/Grad/Nome</th>
+                  <th class="text-center">Situação</th>
+                </tr>
+              </thead>
+              <tbody id="tv-efetivo-lista">
+                <tr><td colspan="2" class="text-center text-muted py-3">A ler matriz de dados...</td></tr>
+              </tbody>
+            </table>
+          </div>
         </div>
         
         <!-- COLUNA 2: AVISOS -->
-        <div class="col-4 tv-quadro">
+        <div class="col-4 tv-quadro d-flex flex-column">
           <h4 class="tv-column-title" style="color: #60a5fa;">Avisos</h4>
-          <div id="tv-avisos-lista"></div>
+          <div id="wrapper-avisos" style="flex: 1; overflow: hidden; position: relative;">
+            <div id="content-avisos" style="width: 100%;"></div>
+          </div>
         </div>
         
         <!-- COLUNA 3: MISSÕES -->
-        <div class="col-4 tv-quadro">
+        <div class="col-4 tv-quadro d-flex flex-column">
           <h4 class="tv-column-title" style="color: #34d399;">Missões</h4>
-          <div id="tv-missoes-lista"></div>
+          <div id="wrapper-missoes" style="flex: 1; overflow: hidden; position: relative;">
+             <div id="content-missoes" style="width: 100%;"></div>
+          </div>
         </div>
         
       </div>
@@ -152,37 +135,58 @@
         else throw new Error(resultado.message);
       }
 
+      // ==========================================
+      // MOTOR DE FORÇA BRUTA (COMPRESSÃO ABSOLUTA)
+      // ==========================================
+      function forcarEncaixeNaTela(wrapperId, contentId, tamanhoInicialVh) {
+          let wrapper = document.getElementById(wrapperId);
+          let content = document.getElementById(contentId);
+          if (!wrapper || !content) return;
+
+          // 1. Resetar a área para leitura pura
+          content.style.transform = 'none';
+          content.style.width = '100%';
+          let currentSize = tamanhoInicialVh;
+          content.style.fontSize = currentSize + 'vh';
+
+          let limiteAltura = wrapper.clientHeight - 5; // Margem de segurança
+          let prevHeight = content.scrollHeight;
+          let loopCount = 0;
+
+          // 2. TENTATIVA A: Reduzir a fonte nativamente até caber
+          while (content.scrollHeight > limiteAltura && currentSize > 0.5 && loopCount < 50) {
+              currentSize -= 0.1;
+              content.style.fontSize = currentSize + 'vh';
+              loopCount++;
+
+              // Se a TV bloquear a redução da fonte, interrompe o loop para não travar
+              if (content.scrollHeight >= prevHeight && loopCount > 2) break;
+              prevHeight = content.scrollHeight;
+          }
+
+          // 3. TENTATIVA B (FORÇA BRUTA GPU): Se ainda vazar, comprime o container inteiro via GPU
+          if (content.scrollHeight > limiteAltura) {
+              let scale = limiteAltura / content.scrollHeight;
+              scale = scale * 0.98; // Ajuste fino de borda
+              content.style.transform = `scale(${scale})`;
+              content.style.transformOrigin = "top center";
+              content.style.width = `${(100 / scale)}%`; // Compensa a largura perdida
+          }
+      }
+
       function atualizarPainel() {
         chamarBackend('obterDadosSistema').then(dados => {
           
-          // ==========================================================
-          // COLUNA 1: AUTO-ESCALA DO EFETIVO
-          // ==========================================================
+          // ==========================================
+          // 1. CARREGAR EFETIVO
+          // ==========================================
           let efetivoTotal = dados.efetivo || [];
           let totalAlteracoes = efetivoTotal.filter(m => m.situacao !== 'P' && m.situacao !== 'PENDENTE').length;
           document.getElementById('qtd-alteracoes').innerText = `${totalAlteracoes} Alterações`;
 
-          let qtdLinhasVirtuais = 0;
-          efetivoTotal.forEach(m => {
-            qtdLinhasVirtuais += 1;
-            if (m.justificativa) qtdLinhasVirtuais += 0.75; 
-          });
-
-          if (qtdLinhasVirtuais === 0) qtdLinhasVirtuais = 1;
-
-          // Sem limite mínimo: a fonte encolherá o necessário para caber em 75vh
-          let altEf = 75 / qtdLinhasVirtuais; 
-          if (altEf > 3.2) altEf = 3.2; // Teto mantido para não ficar gigante se houver só 1
-
-          let padEf = (altEf * 0.10).toFixed(3) + 'vh';
-          let fontNomeEf = (altEf * 0.45).toFixed(3) + 'vh';
-          let fontJustEf = (altEf * 0.35).toFixed(3) + 'vh';
-          let fontBadgeEf = (altEf * 0.40).toFixed(3) + 'vh';
-
           let htmlEfetivo = efetivoTotal.map(m => {
             let sit = m.situacao || '-';
             let just = m.justificativa || '';
-            
             let corBadge = "bg-secondary";
             if(sit === 'P') corBadge = "bg-success";
             else if(sit === 'F') corBadge = "bg-danger";
@@ -190,83 +194,56 @@
             else if (['SV', 'SSV', 'FORM', 'INST', 'COM'].includes(sit)) corBadge = "bg-primary";
             else if (sit === 'PENDENTE' || sit === '-') corBadge = "bg-light text-dark border border-secondary";
             
-            let htmlJustificativa = just ? `<div style="font-size: ${fontJustEf}; color: #38bdf8; margin-top: 0.1vh;"><i class="bi bi-arrow-return-right"></i> ${just}</div>` : '';
-            
-            return `
-              <tr>
-                <td style="padding: ${padEf} 0.5vw;">
-                   <div style="font-size: ${fontNomeEf}; font-weight: bold; letter-spacing: 0.3px;">${m.postoGrad} ${m.nomeGuerra}</div>
-                   ${htmlJustificativa}
-                </td>
-                <td class="text-center" style="padding: ${padEf} 0.5vw;">
-                   <span class="badge shadow-sm ${corBadge}" style="font-size: ${fontBadgeEf}; padding: 0.3vh 0.8vw; border-radius: 4px;">${sit}</span>
-                </td>
-              </tr>
-            `;
+            let htmlJustificativa = just ? `<div class="efetivo-just"><i class="bi bi-arrow-return-right"></i> ${just}</div>` : '';
+            return `<tr><td><div class="efetivo-nome">${m.postoGrad} ${m.nomeGuerra}</div>${htmlJustificativa}</td><td class="text-center"><span class="badge shadow-sm badge-sit ${corBadge}">${sit}</span></td></tr>`;
           }).join('');
           
           if (efetivoTotal.length === 0) htmlEfetivo = `<tr><td colspan="2" class="text-center text-muted py-5" style="font-size: 2vh;">Efetivo não encontrado.</td></tr>`;
           document.getElementById('tv-efetivo-lista').innerHTML = htmlEfetivo;
 
-          // ==========================================================
-          // COLUNA 2: AUTO-ESCALA DE AVISOS
-          // ==========================================================
+          // ==========================================
+          // 2. CARREGAR AVISOS
+          // ==========================================
           let avisos = dados.avisos.filter(a => a[1] && a[1].toString().trim().toUpperCase() === 'ATIVO');
-          let qtdAvisos = avisos.length === 0 ? 1 : avisos.length;
-          
-          // Sem limite mínimo: a fonte encolherá o necessário para caber em 80vh
-          let altAv = 80 / qtdAvisos;
-          if (altAv > 8) altAv = 8; 
-
-          let padAv = (altAv * 0.15).toFixed(3) + 'vh';
-          let margAv = (altAv * 0.15).toFixed(3) + 'vh';
-          let fontAv = (altAv * 0.32).toFixed(3) + 'vh';
-
-          document.getElementById('tv-avisos-lista').innerHTML = avisos.map(a => `
-            <div class="aviso-card shadow" style="padding: ${padAv}; margin-bottom: ${margAv}; font-size: ${fontAv};">
-              <i class="bi bi-megaphone-fill me-2 text-primary" style="font-size: 1.2em;"></i> ${a[3]}
-            </div>
+          document.getElementById('content-avisos').innerHTML = avisos.map(a => `
+            <div class="aviso-card shadow"><i class="bi bi-megaphone-fill me-3 text-primary" style="font-size: 1.3em;"></i><div>${a[3]}</div></div>
           `).join('') || '<div class="text-center text-muted mt-5" style="font-size: 2.2vh;">SEM AVISOS PENDENTES</div>';
 
-          // ==========================================================
-          // COLUNA 3: AUTO-ESCALA DE MISSÕES
-          // ==========================================================
+          // ==========================================
+          // 3. CARREGAR MISSÕES
+          // ==========================================
           let hoje = new Date();
           let diaAtualStr = String(hoje.getDate()).padStart(2, '0') + '/' + String(hoje.getMonth() + 1).padStart(2, '0');
-
           let missoes = dados.missoes.filter(m => {
             if (!m[1]) return false;
             let status = m[1].toString().trim().toUpperCase();
             return status === 'ATIVO' || status === 'PENDENTE';
           });
-          
-          let qtdMissoes = missoes.length === 0 ? 1 : missoes.length;
-          
-          // Sem limite mínimo: a fonte encolherá o necessário para caber em 80vh
-          let altMi = 80 / qtdMissoes;
-          if (altMi > 11) altMi = 11;
 
-          let padMi = (altMi * 0.12).toFixed(3) + 'vh';
-          let margMi = (altMi * 0.12).toFixed(3) + 'vh';
-          let fDataMi = (altMi * 0.20).toFixed(3) + 'vh';
-          let fTitMi = (altMi * 0.25).toFixed(3) + 'vh';
-          let fLocMi = (altMi * 0.18).toFixed(3) + 'vh';
-
-          document.getElementById('tv-missoes-lista').innerHTML = missoes.map(m => {
+          document.getElementById('content-missoes').innerHTML = missoes.map(m => {
             let dataMissao = m[2] ? m[2].toString().trim() : '';
             let isHoje = dataMissao.includes(diaAtualStr);
             let classePulse = isHoje ? 'missao-hoje' : '';
-            let badgeAlerta = isHoje ? `<span class="badge bg-danger ms-2 badge-blink" style="font-size: ${fLocMi}; vertical-align: middle;">HOJE</span>` : '';
+            let badgeAlerta = isHoje ? `<span class="badge bg-danger ms-2 badge-blink badge-blink-anim">HOJE</span>` : '';
 
             return `
-              <div class="missao-card shadow ${classePulse}" style="padding: ${padMi}; margin-bottom: ${margMi};">
-                <div class="missao-data" style="font-size: ${fDataMi};"><i class="bi bi-calendar-event"></i> ${dataMissao} ${badgeAlerta}</div>
-                <div class="missao-titulo" style="font-size: ${fTitMi};">${m[3]}</div>
-                <div class="missao-local" style="font-size: ${fLocMi};"><i class="bi bi-geo-alt-fill"></i> ${m[4]}</div>
+              <div class="missao-card shadow ${classePulse}">
+                <div class="missao-data"><i class="bi bi-calendar-event"></i> ${dataMissao} ${badgeAlerta}</div>
+                <div class="missao-titulo">${m[3]}</div>
+                <div class="missao-local"><i class="bi bi-geo-alt-fill"></i> ${m[4]}</div>
               </div>
             `;
           }).join('') || '<div class="text-center text-muted mt-5" style="font-size: 2.2vh;">SEM MISSÕES AGENDADAS</div>';
-          
+
+          // ==========================================
+          // 4. APLICAR O MOTOR DE FORÇA BRUTA APÓS RENDERIZAR
+          // ==========================================
+          setTimeout(() => {
+              forcarEncaixeNaTela('wrapper-efetivo', 'content-efetivo', 2.5);
+              forcarEncaixeNaTela('wrapper-avisos', 'content-avisos', 2.8);
+              forcarEncaixeNaTela('wrapper-missoes', 'content-missoes', 2.8);
+          }, 50);
+
         }).catch(e => console.error("Erro no processamento da API:", e));
       }
 
@@ -278,7 +255,7 @@
         
         document.getElementById('relogio-tv').innerHTML = `
           <span style="font-size: 1.8vh; color: #94a3b8; margin-right: 1.5vw;">${dataFormatada}</span>
-          <span style="font-size: 2.8vh;"><i class="bi bi-clock"></i> ${horaFormatada}</span>
+          <span style="font-size: 3vh;"><i class="bi bi-clock"></i> ${horaFormatada}</span>
         `;
       }
 
