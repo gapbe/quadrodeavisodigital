@@ -29,7 +29,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     
     <style>
-      /* CSS OTIMIZADO PARA SMART TVs (Big Screen Mode) */
+      /* CSS OTIMIZADO PARA SMART TVs */
       * { box-sizing: border-box; }
       
       html, body { 
@@ -41,7 +41,6 @@
         padding: 0;
         width: 100vw;
         height: 100vh;
-        /* TRAVA ANTI-DISTORÇÃO PARA NAVEGADORES DE TV */
         -webkit-text-size-adjust: 100%;
         -moz-text-size-adjust: 100%;
         text-size-adjust: 100%;
@@ -55,8 +54,8 @@
       .aviso-card { background-color: rgba(59, 130, 246, 0.1); border-left: 5px solid #3b82f6; border-radius: 6px; display: flex; align-items: center;}
       .missao-card { background-color: rgba(16, 185, 129, 0.1); border-left: 5px solid #10b981; border-radius: 6px; transition: all 0.3s ease;}
       .missao-data { color: #10b981; font-weight: bold; }
-      .missao-titulo { font-weight: bold; margin-top: 0.4vh; }
-      .missao-local { color: #cbd5e1; margin-top: 0.5vh; opacity: 0.9;}
+      .missao-titulo { font-weight: bold; margin-top: 4px; }
+      .missao-local { color: #cbd5e1; margin-top: 5px; opacity: 0.9;}
       
       .tabela-efetivo { width: 100%; border-collapse: collapse; }
       .tabela-efetivo th { background-color: rgba(255,255,255,0.05); color: #cbd5e1; font-size: 1.5vh; padding: 0.6vh; text-transform: uppercase; border-bottom: 2px solid #475569;}
@@ -85,7 +84,7 @@
             <span class="badge bg-danger" id="qtd-alteracoes" style="font-size: 1.6vh;">0 Alterações</span>
           </div>
           <table class="tabela-efetivo mt-1">
-            <thead><tr><th>Posto/Nome</th><th class="text-center">Situação</th></tr></thead>
+            <thead><tr><th>Posto/Grad/Nome</th><th class="text-center">Situação</th></tr></thead>
             <tbody id="tv-efetivo-lista"><tr><td colspan="2" class="text-center text-muted py-3" style="font-size: 2vh;">A ler matriz de dados...</td></tr></tbody>
           </table>
         </div>
@@ -117,6 +116,11 @@
       function atualizarPainel() {
         chamarBackend('obterDadosSistema').then(dados => {
           
+          // Constante universal para converter cálculos relativos em PIXELS ABSOLUTOS
+          // Isso obriga os navegadores de TV a respeitarem o tamanho forçado.
+          let vhPx = window.innerHeight / 100;
+          let vwPx = window.innerWidth / 100;
+
           // ==========================================
           // COLUNA 1: EFETIVO
           // ==========================================
@@ -129,25 +133,28 @@
           if (qtdLinhasVirtuais === 0) qtdLinhasVirtuais = 1;
 
           let altEf = 78 / qtdLinhasVirtuais; 
-          // LIMITES RELAXADOS PARA SMART TVS:
           if (altEf > 6.0) altEf = 6.0; 
           if (altEf < 1.0) altEf = 1.0; 
 
-          let padEf = (altEf * 0.12).toFixed(2) + 'vh';
-          let fontNomeEf = (altEf * 0.45).toFixed(2) + 'vh';
-          let fontJustEf = (altEf * 0.35).toFixed(2) + 'vh';
-          let fontBadgeEf = (altEf * 0.42).toFixed(2) + 'vh';
+          // Conversão para PX
+          let padEf = (altEf * 0.12 * vhPx).toFixed(0) + 'px';
+          let padEfW = (0.5 * vwPx).toFixed(0) + 'px'; // 0.5vw em px
+          let fontNomeEf = (altEf * 0.45 * vhPx).toFixed(0) + 'px';
+          let fontJustEf = (altEf * 0.35 * vhPx).toFixed(0) + 'px';
+          let fontBadgeEf = (altEf * 0.42 * vhPx).toFixed(0) + 'px';
+          let badgePadY = (0.4 * vhPx).toFixed(0) + 'px';
+          let badgePadX = (0.8 * vwPx).toFixed(0) + 'px';
 
           let htmlEfetivo = efetivoTotal.map(m => {
             let sit = m.situacao || '-'; let just = m.justificativa || '';
             let corBadge = "bg-secondary";
             if(sit === 'P') corBadge = "bg-success"; else if(sit === 'F') corBadge = "bg-danger"; else if (['FÉR', 'LIC'].includes(sit)) corBadge = "bg-warning text-dark"; else if (['SV', 'SSV', 'FORM', 'INST', 'COM'].includes(sit)) corBadge = "bg-primary"; else if (sit === 'PENDENTE' || sit === '-') corBadge = "bg-light text-dark border border-secondary";
             
-            let htmlJustificativa = just ? `<div style="font-size: ${fontJustEf}; color: #38bdf8; margin-top: 0.2vh;"><i class="bi bi-arrow-return-right"></i> ${just}</div>` : '';
-            return `<tr><td style="padding: ${padEf} 0.5vw;"><div style="font-size: ${fontNomeEf}; font-weight: bold; letter-spacing: 0.3px;">${m.postoGrad} ${m.nomeGuerra}</div>${htmlJustificativa}</td><td class="text-center" style="padding: ${padEf} 0.5vw;"><span class="badge shadow-sm ${corBadge}" style="font-size: ${fontBadgeEf}; padding: 0.4vh 0.8vw; border-radius: 4px;">${sit}</span></td></tr>`;
+            let htmlJustificativa = just ? `<div style="font-size: ${fontJustEf}; color: #38bdf8; margin-top: 2px;"><i class="bi bi-arrow-return-right"></i> ${just}</div>` : '';
+            return `<tr><td style="padding: ${padEf} ${padEfW};"><div style="font-size: ${fontNomeEf}; font-weight: bold; letter-spacing: 0.3px;">${m.postoGrad} ${m.nomeGuerra}</div>${htmlJustificativa}</td><td class="text-center" style="padding: ${padEf} ${padEfW};"><span class="badge shadow-sm ${corBadge}" style="font-size: ${fontBadgeEf}; padding: ${badgePadY} ${badgePadX}; border-radius: 4px;">${sit}</span></td></tr>`;
           }).join('');
           
-          if (efetivoTotal.length === 0) htmlEfetivo = `<tr><td colspan="2" class="text-center text-muted py-5" style="font-size: 2.2vh;">Efetivo não encontrado.</td></tr>`;
+          if (efetivoTotal.length === 0) htmlEfetivo = `<tr><td colspan="2" class="text-center text-muted py-5" style="font-size: 20px;">Efetivo não encontrado.</td></tr>`;
           document.getElementById('tv-efetivo-lista').innerHTML = htmlEfetivo;
 
           // ==========================================
@@ -160,11 +167,11 @@
           if (altAv > 14) altAv = 14; 
           if (altAv < 2.5) altAv = 2.5; 
           
-          let padAv = (altAv * 0.18).toFixed(2) + 'vh'; 
-          let margAv = (altAv * 0.15).toFixed(2) + 'vh'; 
-          let fontAv = (altAv * 0.32).toFixed(2) + 'vh';
+          let padAv = (altAv * 0.18 * vhPx).toFixed(0) + 'px'; 
+          let margAv = (altAv * 0.15 * vhPx).toFixed(0) + 'px'; 
+          let fontAv = (altAv * 0.32 * vhPx).toFixed(0) + 'px';
 
-          document.getElementById('tv-avisos-lista').innerHTML = avisos.map(a => `<div class="aviso-card shadow" style="padding: ${padAv}; margin-bottom: ${margAv}; font-size: ${fontAv};"><i class="bi bi-megaphone-fill me-3 text-primary" style="font-size: 1.3em;"></i> <div>${a[3]}</div></div>`).join('') || '<div class="text-center text-muted mt-5" style="font-size: 2.5vh;">SEM AVISOS PENDENTES</div>';
+          document.getElementById('tv-avisos-lista').innerHTML = avisos.map(a => `<div class="aviso-card shadow" style="padding: ${padAv}; margin-bottom: ${margAv}; font-size: ${fontAv};"><i class="bi bi-megaphone-fill me-3 text-primary" style="font-size: 1.3em;"></i> <div>${a[3]}</div></div>`).join('') || '<div class="text-center text-muted mt-5" style="font-size: 20px;">SEM AVISOS PENDENTES</div>';
 
           // ==========================================
           // COLUNA 3: MISSÕES
@@ -177,17 +184,17 @@
           if (altMi > 16) altMi = 16; 
           if (altMi < 3.5) altMi = 3.5;
           
-          let padMi = (altMi * 0.12).toFixed(2) + 'vh'; 
-          let margMi = (altMi * 0.12).toFixed(2) + 'vh'; 
-          let fDataMi = (altMi * 0.22).toFixed(2) + 'vh'; 
-          let fTitMi = (altMi * 0.28).toFixed(2) + 'vh'; 
-          let fLocMi = (altMi * 0.20).toFixed(2) + 'vh';
+          let padMi = (altMi * 0.12 * vhPx).toFixed(0) + 'px'; 
+          let margMi = (altMi * 0.12 * vhPx).toFixed(0) + 'px'; 
+          let fDataMi = (altMi * 0.22 * vhPx).toFixed(0) + 'px'; 
+          let fTitMi = (altMi * 0.28 * vhPx).toFixed(0) + 'px'; 
+          let fLocMi = (altMi * 0.20 * vhPx).toFixed(0) + 'px';
 
           document.getElementById('tv-missoes-lista').innerHTML = missoes.map(m => {
             let dataMissao = m[2] ? m[2].toString().trim() : '';
-            let isHoje = dataMissao.includes(diaAtualStr); let classePulse = isHoje ? 'missao-hoje' : ''; let badgeAlerta = isHoje ? `<span class="badge bg-danger ms-2 badge-blink" style="font-size: ${fLocMi}; vertical-align: middle;">HOJE</span>` : '';
+            let isHoje = dataMissao.includes(diaAtualStr); let classePulse = isHoje ? 'missao-hoje' : ''; let badgeAlerta = isHoje ? `<span class="badge bg-danger ms-2 badge-blink" style="font-size: ${fLocMi}; padding: 2px 6px;">HOJE</span>` : '';
             return `<div class="missao-card shadow ${classePulse}" style="padding: ${padMi}; margin-bottom: ${margMi};"><div class="missao-data" style="font-size: ${fDataMi};"><i class="bi bi-calendar-event"></i> ${dataMissao} ${badgeAlerta}</div><div class="missao-titulo" style="font-size: ${fTitMi};">${m[3]}</div><div class="missao-local" style="font-size: ${fLocMi};"><i class="bi bi-geo-alt-fill"></i> ${m[4]}</div></div>`;
-          }).join('') || '<div class="text-center text-muted mt-5" style="font-size: 2.5vh;">SEM MISSÕES AGENDADAS</div>';
+          }).join('') || '<div class="text-center text-muted mt-5" style="font-size: 20px;">SEM MISSÕES AGENDADAS</div>';
           
         }).catch(e => console.error("Erro na atualização da TV:", e));
       }
@@ -198,7 +205,14 @@
         document.getElementById('relogio-tv').innerHTML = `<span style="font-size: 2vh; color: #94a3b8; margin-right: 1.5vw;">${agora.toLocaleDateString('pt-BR', opcoesData).toUpperCase()}</span><span style="font-size: 3vh;"><i class="bi bi-clock"></i> ${agora.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'})}</span>`;
       }
 
-      window.onload = () => { atualizarPainel(); atualizarRelogioEData(); setInterval(atualizarPainel, 180000); setInterval(atualizarRelogioEData, 1000); };
+      window.onload = () => { 
+        atualizarPainel(); 
+        atualizarRelogioEData(); 
+        
+        // Atualização Silenciosa a cada 3 minutos mantida!
+        setInterval(atualizarPainel, 180000); 
+        setInterval(atualizarRelogioEData, 1000); 
+      };
     </script>
   </body>
 </html>
