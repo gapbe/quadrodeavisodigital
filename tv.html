@@ -210,8 +210,24 @@
           `).join('') || '<div class="text-center text-muted mt-5" style="font-size: 2.2vh;">SEM AVISOS PENDENTES</div>';
 
           // ==========================================
-          // 3. CARREGAR MISSÕES
+          // 3. CARREGAR MISSÕES E ORDENAR CRONOLOGICAMENTE
           // ==========================================
+          
+          // APLICAÇÃO DO ALGORITMO ANALISADOR DE TEMPO
+          dados.missoes.sort((a, b) => {
+            function obterValorData(str) {
+              if (!str) return 999999999999;
+              let partes = str.toString().split(' - ');
+              let dM = partes[0].trim().split('/');
+              let dia = dM[0] ? dM[0].padStart(2, '0') : '99';
+              let mes = dM[1] ? dM[1].padStart(2, '0') : '99';
+              let ano = dM[2] ? dM[2] : new Date().getFullYear().toString();
+              let hora = partes[1] ? partes[1].trim().replace(':', '') : '9999';
+              return parseInt(ano + mes + dia + hora, 10);
+            }
+            return obterValorData(a[2]) - obterValorData(b[2]);
+          });
+
           let hoje = new Date();
           let diaAtualStr = String(hoje.getDate()).padStart(2, '0') + '/' + String(hoje.getMonth() + 1).padStart(2, '0');
           let missoes = dados.missoes.filter(m => {
