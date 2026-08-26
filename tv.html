@@ -7,7 +7,7 @@
       // ⚙️ CONFIGURAÇÃO DA API (COLE SUA URL DO APPS SCRIPT AQUI)
       // ========================================================================
       const OM_CONFIG = {
-        API_URL: "https://script.google.com/macros/s/AKfycbyHp1XY5B7I5fEEI64P8bl83rzf-ilrT_FGxq-e7PmdUpbLZ9628FXg1cfiP8C3NomR/exec", // DEVE TERMINAR EM /exec
+        API_URL: "https://script.google.com/macros/s/AKfycbyHp1XY5B7I5fEEI64P8bl83rzf-ilrT_FGxq-e7PmdUpbLZ9628FXg1cfiP8C3NomR/exec", // ⚠️ DEVE TERMINAR EM /exec
         SIGLA: "ATIC",
         COR_PRIMARIA: "#0f172a"
       };
@@ -31,10 +31,24 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     
     <style>
-      /* CSS Ultra-Dinâmico Validado (Bloqueio Absoluto de Rolagem) */
-      ::-webkit-scrollbar { display: none; } /* Extingue fisicamente a barra de rolagem */
+      /* CSS BLINDADO PARA SMART TVS */
+      /* 1. Extingue fisicamente qualquer barra de rolagem */
+      ::-webkit-scrollbar { display: none !important; }
       
-      body { background-color: #0f172a; color: #f8fafc; font-family: 'Segoe UI', Tahoma, sans-serif; overflow: hidden; margin: 0; padding: 0; max-height: 100vh;}
+      body { 
+        background-color: #0f172a; 
+        color: #f8fafc; 
+        font-family: 'Segoe UI', Tahoma, sans-serif; 
+        overflow: hidden !important; 
+        margin: 0; 
+        padding: 0; 
+        height: 100vh;
+        width: 100vw;
+        /* 2. Trava a inflação automática de texto da TV */
+        -webkit-text-size-adjust: none;
+        -moz-text-size-adjust: none;
+        text-size-adjust: none;
+      }
       
       .tv-header { background-color: #1e293b; border-bottom: 4px solid #3b82f6; padding: 0 1.5vw; height: 8vh; display: flex; align-items: center; justify-content: space-between;}
       .tv-column-title { text-transform: uppercase; letter-spacing: 2px; font-weight: bold; border-bottom: 2px solid #475569; padding-bottom: 0.8vh; text-align: center; font-size: 2.3vh; margin-bottom: 1vh; color: #94a3b8;}
@@ -51,7 +65,7 @@
 
       /* TABELA BASE EFETIVO */
       .tabela-efetivo { width: 100%; border-collapse: collapse; }
-      .tabela-efetivo th { background-color: rgba(255,255,255,0.05); color: #cbd5e1; font-size: 1.5vh; padding: 0.5vh; text-transform: uppercase; border-bottom: 2px solid #475569;}
+      .tabela-efetivo th { background-color: rgba(255,255,255,0.05); color: #cbd5e1; font-size: 1.4vh; padding: 0.4vh; text-transform: uppercase; border-bottom: 2px solid #475569;}
       .tabela-efetivo td { border-bottom: 1px solid rgba(100, 116, 139, 0.2); vertical-align: middle; line-height: 1.1;}
 
       /* ========================================== */
@@ -125,7 +139,7 @@
 
     <script>
       // ==========================================
-      // MOTOR DA API PWA
+      // MOTOR DA API PWA 
       // ==========================================
       async function chamarBackend(acao, parametros = {}) {
         const resposta = await fetch(OM_CONFIG.API_URL, {
@@ -142,7 +156,7 @@
         chamarBackend('obterDadosSistema').then(dados => {
           
           // ==========================================================
-          // COLUNA 1: AUTO-ESCALA DO EFETIVO (LIMITE MÍNIMO EXTIRPADO)
+          // COLUNA 1: AUTO-ESCALA DO EFETIVO
           // ==========================================================
           let efetivoTotal = dados.efetivo || [];
           let totalAlteracoes = efetivoTotal.filter(m => m.situacao !== 'P' && m.situacao !== 'PENDENTE').length;
@@ -151,15 +165,14 @@
           let qtdLinhasVirtuais = 0;
           efetivoTotal.forEach(m => {
             qtdLinhasVirtuais += 1;
-            if (m.justificativa) qtdLinhasVirtuais += 0.8; 
+            if (m.justificativa) qtdLinhasVirtuais += 0.75; 
           });
 
           if (qtdLinhasVirtuais === 0) qtdLinhasVirtuais = 1;
 
-          // Divide os 78vh disponíveis rigorosamente pelo número de linhas
-          let altEf = 78 / qtdLinhasVirtuais; 
-          if (altEf > 4.0) altEf = 4.0; // Mantém o teto máximo para não ficar gigante se houver 1 militar só.
-          // LIMITADOR MÍNIMO REMOVIDO: Agora encolhe infinitamente para caber.
+          // Sem limite mínimo: a fonte encolherá o necessário para caber em 75vh
+          let altEf = 75 / qtdLinhasVirtuais; 
+          if (altEf > 3.2) altEf = 3.2; // Teto mantido para não ficar gigante se houver só 1
 
           let padEf = (altEf * 0.10).toFixed(3) + 'vh';
           let fontNomeEf = (altEf * 0.45).toFixed(3) + 'vh';
@@ -177,7 +190,7 @@
             else if (['SV', 'SSV', 'FORM', 'INST', 'COM'].includes(sit)) corBadge = "bg-primary";
             else if (sit === 'PENDENTE' || sit === '-') corBadge = "bg-light text-dark border border-secondary";
             
-            let htmlJustificativa = just ? `<div style="font-size: ${fontJustEf}; color: #38bdf8; margin-top: 0.2vh;"><i class="bi bi-arrow-return-right"></i> ${just}</div>` : '';
+            let htmlJustificativa = just ? `<div style="font-size: ${fontJustEf}; color: #38bdf8; margin-top: 0.1vh;"><i class="bi bi-arrow-return-right"></i> ${just}</div>` : '';
             
             return `
               <tr>
@@ -186,26 +199,24 @@
                    ${htmlJustificativa}
                 </td>
                 <td class="text-center" style="padding: ${padEf} 0.5vw;">
-                   <span class="badge shadow-sm ${corBadge}" style="font-size: ${fontBadgeEf}; padding: 0.4vh 0.8vw; border-radius: 4px;">${sit}</span>
+                   <span class="badge shadow-sm ${corBadge}" style="font-size: ${fontBadgeEf}; padding: 0.3vh 0.8vw; border-radius: 4px;">${sit}</span>
                 </td>
               </tr>
             `;
           }).join('');
           
-          if (efetivoTotal.length === 0) {
-             htmlEfetivo = `<tr><td colspan="2" class="text-center text-muted py-5" style="font-size: 2vh;">Efetivo não encontrado.</td></tr>`;
-          }
+          if (efetivoTotal.length === 0) htmlEfetivo = `<tr><td colspan="2" class="text-center text-muted py-5" style="font-size: 2vh;">Efetivo não encontrado.</td></tr>`;
           document.getElementById('tv-efetivo-lista').innerHTML = htmlEfetivo;
 
           // ==========================================================
-          // COLUNA 2: AUTO-ESCALA DE AVISOS (LIMITE MÍNIMO EXTIRPADO)
+          // COLUNA 2: AUTO-ESCALA DE AVISOS
           // ==========================================================
           let avisos = dados.avisos.filter(a => a[1] && a[1].toString().trim().toUpperCase() === 'ATIVO');
-          
           let qtdAvisos = avisos.length === 0 ? 1 : avisos.length;
+          
+          // Sem limite mínimo: a fonte encolherá o necessário para caber em 80vh
           let altAv = 80 / qtdAvisos;
           if (altAv > 8) altAv = 8; 
-          // LIMITADOR MÍNIMO REMOVIDO
 
           let padAv = (altAv * 0.15).toFixed(3) + 'vh';
           let margAv = (altAv * 0.15).toFixed(3) + 'vh';
@@ -213,12 +224,12 @@
 
           document.getElementById('tv-avisos-lista').innerHTML = avisos.map(a => `
             <div class="aviso-card shadow" style="padding: ${padAv}; margin-bottom: ${margAv}; font-size: ${fontAv};">
-              <i class="bi bi-megaphone-fill me-3 text-primary" style="font-size: 1.2em;"></i> <div>${a[3]}</div>
+              <i class="bi bi-megaphone-fill me-2 text-primary" style="font-size: 1.2em;"></i> ${a[3]}
             </div>
           `).join('') || '<div class="text-center text-muted mt-5" style="font-size: 2.2vh;">SEM AVISOS PENDENTES</div>';
 
           // ==========================================================
-          // COLUNA 3: AUTO-ESCALA DE MISSÕES (LIMITE MÍNIMO EXTIRPADO)
+          // COLUNA 3: AUTO-ESCALA DE MISSÕES
           // ==========================================================
           let hoje = new Date();
           let diaAtualStr = String(hoje.getDate()).padStart(2, '0') + '/' + String(hoje.getMonth() + 1).padStart(2, '0');
@@ -230,9 +241,10 @@
           });
           
           let qtdMissoes = missoes.length === 0 ? 1 : missoes.length;
+          
+          // Sem limite mínimo: a fonte encolherá o necessário para caber em 80vh
           let altMi = 80 / qtdMissoes;
           if (altMi > 11) altMi = 11;
-          // LIMITADOR MÍNIMO REMOVIDO
 
           let padMi = (altMi * 0.12).toFixed(3) + 'vh';
           let margMi = (altMi * 0.12).toFixed(3) + 'vh';
@@ -242,10 +254,9 @@
 
           document.getElementById('tv-missoes-lista').innerHTML = missoes.map(m => {
             let dataMissao = m[2] ? m[2].toString().trim() : '';
-            
             let isHoje = dataMissao.includes(diaAtualStr);
             let classePulse = isHoje ? 'missao-hoje' : '';
-            let badgeAlerta = isHoje ? `<span class="badge bg-danger ms-2 badge-blink" style="font-size: ${fLocMi}; padding: 0.2vh 0.6vw;">HOJE</span>` : '';
+            let badgeAlerta = isHoje ? `<span class="badge bg-danger ms-2 badge-blink" style="font-size: ${fLocMi}; vertical-align: middle;">HOJE</span>` : '';
 
             return `
               <div class="missao-card shadow ${classePulse}" style="padding: ${padMi}; margin-bottom: ${margMi};">
@@ -267,15 +278,14 @@
         
         document.getElementById('relogio-tv').innerHTML = `
           <span style="font-size: 1.8vh; color: #94a3b8; margin-right: 1.5vw;">${dataFormatada}</span>
-          <span style="font-size: 3vh;"><i class="bi bi-clock"></i> ${horaFormatada}</span>
+          <span style="font-size: 2.8vh;"><i class="bi bi-clock"></i> ${horaFormatada}</span>
         `;
       }
 
       window.onload = () => {
         atualizarPainel(); 
         atualizarRelogioEData(); 
-        
-        // Atualização Silenciosa a cada 3 minutos (180.000 ms) MANTIDA
+        // A ATUALIZAÇÃO SILENCIOSA A CADA 3 MINUTOS ESTÁ MANTIDA!
         setInterval(atualizarPainel, 180000); 
         setInterval(atualizarRelogioEData, 1000); 
       };
