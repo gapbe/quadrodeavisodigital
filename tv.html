@@ -42,7 +42,7 @@
       
       .tv-header { background-color: #1e293b; border-bottom: 4px solid #3b82f6; padding: 0 1.5vw; height: 8vh; display: flex; align-items: center; justify-content: space-between;}
       .tv-column-title { text-transform: uppercase; letter-spacing: 2px; font-weight: bold; border-bottom: 2px solid #475569; padding-bottom: 0.8vh; text-align: center; font-size: 2.3vh; margin-bottom: 1vh; color: #94a3b8;}
-      .tv-quadro { height: 92vh; border-right: 2px solid #334155; padding: 1vh 1.5vw; }
+      .tv-quadro { height: 92vh; border-right: 2px solid #334155; padding: 1vh 1vw; }
       .tv-quadro:last-child { border-right: none; }
 
       /* Bases Visuais Proporcionais (Usando 'em' para escala perfeita no motor JS) */
@@ -53,11 +53,17 @@
       .missao-local { color: #cbd5e1; margin-top: 0.4em; opacity: 0.8; font-size: 0.8em;}
       .badge-blink { font-size: 0.85em; padding: 0.2em 0.6em; vertical-align: middle; }
 
+      /* Novo Card: Equipamentos */
+      .equip-card { background-color: rgba(245, 158, 11, 0.1); border-left: 5px solid #f59e0b; border-radius: 4px; padding: 0.8em; margin-bottom: 0.8em; font-size: 1em; transition: all 0.3s ease;}
+      .equip-data { color: #f59e0b; font-weight: bold; font-size: 0.85em;}
+      .equip-titulo { font-weight: bold; margin-top: 0.3em; font-size: 1.15em;}
+      .equip-desc { color: #cbd5e1; margin-top: 0.4em; opacity: 0.9; font-size: 0.8em; line-height: 1.2;}
+
       /* TABELA BASE EFETIVO */
       .tabela-efetivo { width: 100%; border-collapse: collapse; }
       .tabela-efetivo th { background-color: rgba(255,255,255,0.05); color: #cbd5e1; font-size: 0.9em; padding: 0.5em; text-transform: uppercase; border-bottom: 2px solid #475569;}
-      .tabela-efetivo td { border-bottom: 1px solid rgba(100, 116, 139, 0.2); vertical-align: middle; line-height: 1.1; padding: 0.3em 0.5vw;}
-      .efetivo-nome { font-size: 1.1em; font-weight: bold; letter-spacing: 0.3px; }
+      .tabela-efetivo td { border-bottom: 1px solid rgba(100, 116, 139, 0.2); vertical-align: middle; line-height: 1.1; padding: 0.3em 0.2vw;}
+      .efetivo-nome { font-size: 1.1em; font-weight: bold; letter-spacing: 0.2px; }
       .efetivo-just { font-size: 0.85em; color: #38bdf8; margin-top: 0.2em; }
       .badge-sit { font-size: 0.9em; padding: 0.3em 0.8em; border-radius: 4px; }
 
@@ -80,17 +86,17 @@
       <div class="row g-0">
         
         <!-- COLUNA 1: CONTROLE DO EFETIVO -->
-        <div class="col-4 tv-quadro d-flex flex-column">
+        <div class="col-3 tv-quadro d-flex flex-column">
           <div class="d-flex justify-content-between align-items-end mb-1 border-bottom border-secondary pb-1" style="border-width: 2px !important; border-color: #475569 !important;">
-            <h4 class="mb-0 text-uppercase fw-bold" style="letter-spacing: 2px; font-size: 2.2vh; color: #94a3b8;">Controle do Efetivo</h4>
-            <span class="badge bg-danger" id="qtd-alteracoes" style="font-size: 1.6vh;">0 Alterações</span>
+            <h4 class="mb-0 text-uppercase fw-bold" style="letter-spacing: 2px; font-size: 2vh; color: #94a3b8;">Efetivo</h4>
+            <span class="badge bg-danger" id="qtd-alteracoes" style="font-size: 1.4vh;">0 Alt</span>
           </div>
           <!-- WRAPPER PARA O MOTOR MEDIR -->
           <div id="wrapper-efetivo" style="flex: 1; overflow: hidden; position: relative;">
             <table id="content-efetivo" class="tabela-efetivo mt-1">
               <thead>
                 <tr>
-                  <th>Posto/Grad/Nome</th>
+                  <th>Posto/Nome</th>
                   <th class="text-center">Situação</th>
                 </tr>
               </thead>
@@ -102,7 +108,7 @@
         </div>
         
         <!-- COLUNA 2: AVISOS -->
-        <div class="col-4 tv-quadro d-flex flex-column">
+        <div class="col-3 tv-quadro d-flex flex-column">
           <h4 class="tv-column-title" style="color: #60a5fa;">Avisos</h4>
           <div id="wrapper-avisos" style="flex: 1; overflow: hidden; position: relative;">
             <div id="content-avisos" style="width: 100%;"></div>
@@ -110,10 +116,18 @@
         </div>
         
         <!-- COLUNA 3: MISSÕES -->
-        <div class="col-4 tv-quadro d-flex flex-column">
+        <div class="col-3 tv-quadro d-flex flex-column">
           <h4 class="tv-column-title" style="color: #34d399;">Missões</h4>
           <div id="wrapper-missoes" style="flex: 1; overflow: hidden; position: relative;">
              <div id="content-missoes" style="width: 100%;"></div>
+          </div>
+        </div>
+
+        <!-- COLUNA 4: EQUIPAMENTOS (MANUTENÇÃO) -->
+        <div class="col-3 tv-quadro d-flex flex-column">
+          <h4 class="tv-column-title" style="color: #f59e0b;">Manutenção</h4>
+          <div id="wrapper-equipamentos" style="flex: 1; overflow: hidden; position: relative;">
+             <div id="content-equipamentos" style="width: 100%;"></div>
           </div>
         </div>
         
@@ -136,41 +150,37 @@
       }
 
       // ==========================================
-      // MOTOR DE FORÇA BRUTA (COMPRESSÃO ABSOLUTA)
+      // MOTOR DE FORÇA BRUTA (COMPRESSÃO ABSOLUTA GPU)
       // ==========================================
       function forcarEncaixeNaTela(wrapperId, contentId, tamanhoInicialVh) {
           let wrapper = document.getElementById(wrapperId);
           let content = document.getElementById(contentId);
           if (!wrapper || !content) return;
 
-          // 1. Resetar a área para leitura pura
           content.style.transform = 'none';
           content.style.width = '100%';
           let currentSize = tamanhoInicialVh;
           content.style.fontSize = currentSize + 'vh';
 
-          let limiteAltura = wrapper.clientHeight - 5; // Margem de segurança
+          let limiteAltura = wrapper.clientHeight - 5;
           let prevHeight = content.scrollHeight;
           let loopCount = 0;
 
-          // 2. TENTATIVA A: Reduzir a fonte nativamente até caber
           while (content.scrollHeight > limiteAltura && currentSize > 0.5 && loopCount < 50) {
               currentSize -= 0.1;
               content.style.fontSize = currentSize + 'vh';
               loopCount++;
 
-              // Se a TV bloquear a redução da fonte, interrompe o loop para não travar
               if (content.scrollHeight >= prevHeight && loopCount > 2) break;
               prevHeight = content.scrollHeight;
           }
 
-          // 3. TENTATIVA B (FORÇA BRUTA GPU): Se ainda vazar, comprime o container inteiro via GPU
           if (content.scrollHeight > limiteAltura) {
               let scale = limiteAltura / content.scrollHeight;
-              scale = scale * 0.98; // Ajuste fino de borda
+              scale = scale * 0.98;
               content.style.transform = `scale(${scale})`;
               content.style.transformOrigin = "top center";
-              content.style.width = `${(100 / scale)}%`; // Compensa a largura perdida
+              content.style.width = `${(100 / scale)}%`;
           }
       }
 
@@ -182,7 +192,7 @@
           // ==========================================
           let efetivoTotal = dados.efetivo || [];
           let totalAlteracoes = efetivoTotal.filter(m => m.situacao !== 'P' && m.situacao !== 'PENDENTE').length;
-          document.getElementById('qtd-alteracoes').innerText = `${totalAlteracoes} Alterações`;
+          document.getElementById('qtd-alteracoes').innerText = `${totalAlteracoes} Alt`;
 
           let htmlEfetivo = efetivoTotal.map(m => {
             let sit = m.situacao || '-';
@@ -212,8 +222,6 @@
           // ==========================================
           // 3. CARREGAR MISSÕES E ORDENAR CRONOLOGICAMENTE
           // ==========================================
-          
-          // APLICAÇÃO DO ALGORITMO ANALISADOR DE TEMPO
           dados.missoes.sort((a, b) => {
             function obterValorData(str) {
               if (!str) return 999999999999;
@@ -240,7 +248,7 @@
             let dataMissao = m[2] ? m[2].toString().trim() : '';
             let isHoje = dataMissao.includes(diaAtualStr);
             let classePulse = isHoje ? 'missao-hoje' : '';
-            let badgeAlerta = isHoje ? `<span class="badge bg-danger ms-2 badge-blink badge-blink-anim">HOJE</span>` : '';
+            let badgeAlerta = isHoje ? `<span class="badge bg-danger ms-1 badge-blink badge-blink-anim">HOJE</span>` : '';
 
             return `
               <div class="missao-card shadow ${classePulse}">
@@ -252,12 +260,27 @@
           }).join('') || '<div class="text-center text-muted mt-5" style="font-size: 2.2vh;">SEM MISSÕES AGENDADAS</div>';
 
           // ==========================================
-          // 4. APLICAR O MOTOR DE FORÇA BRUTA APÓS RENDERIZAR
+          // 4. CARREGAR EQUIPAMENTOS EM MANUTENÇÃO
+          // ==========================================
+          let equipamentos = dados.equipamentos || [];
+          document.getElementById('content-equipamentos').innerHTML = equipamentos.map(eq => `
+            <div class="equip-card shadow">
+              <div class="equip-data"><i class="bi bi-box-arrow-in-right"></i> Entrada: ${eq.data}</div>
+              <div class="equip-titulo">${eq.equipamento}</div>
+              <div class="equip-desc"><i class="bi bi-person"></i> Cliente: ${eq.cliente}</div>
+              <div class="equip-desc"><i class="bi bi-wrench"></i> Téc: ${eq.tecnico}</div>
+              <div class="equip-desc" style="color: #ef4444;"><i class="bi bi-exclamation-triangle-fill"></i> ${eq.problema}</div>
+            </div>
+          `).join('') || '<div class="text-center text-muted mt-5" style="font-size: 2.2vh;">NENHUM EQUIPAMENTO NA OFICINA</div>';
+
+          // ==========================================
+          // 5. APLICAR O MOTOR DE FORÇA BRUTA (GPU SCALING) NAS 4 COLUNAS
           // ==========================================
           setTimeout(() => {
               forcarEncaixeNaTela('wrapper-efetivo', 'content-efetivo', 2.5);
               forcarEncaixeNaTela('wrapper-avisos', 'content-avisos', 2.8);
               forcarEncaixeNaTela('wrapper-missoes', 'content-missoes', 2.8);
+              forcarEncaixeNaTela('wrapper-equipamentos', 'content-equipamentos', 2.6); // Escala independente para a Manutenção
           }, 50);
 
         }).catch(e => console.error("Erro no processamento da API:", e));
