@@ -42,7 +42,7 @@
       
       .tv-header { background-color: #1e293b; border-bottom: 4px solid #3b82f6; padding: 0 1.5vw; height: 8vh; display: flex; align-items: center; justify-content: space-between;}
       .tv-column-title { text-transform: uppercase; letter-spacing: 2px; font-weight: bold; border-bottom: 2px solid #475569; padding-bottom: 0.8vh; text-align: center; font-size: 2.3vh; margin-bottom: 1vh; color: #94a3b8;}
-      .tv-quadro { height: 92vh; border-right: 2px solid #334155; padding: 1vh 1vw; }
+      .tv-quadro { height: 92vh; border-right: 2px solid #334155; padding: 1vh 1.5vw; }
       .tv-quadro:last-child { border-right: none; }
 
       /* Bases Visuais Proporcionais (Usando 'em' para escala perfeita no motor JS) */
@@ -62,15 +62,31 @@
       /* TABELA BASE EFETIVO */
       .tabela-efetivo { width: 100%; border-collapse: collapse; }
       .tabela-efetivo th { background-color: rgba(255,255,255,0.05); color: #cbd5e1; font-size: 0.9em; padding: 0.5em; text-transform: uppercase; border-bottom: 2px solid #475569;}
-      .tabela-efetivo td { border-bottom: 1px solid rgba(100, 116, 139, 0.2); vertical-align: middle; line-height: 1.1; padding: 0.3em 0.2vw;}
-      .efetivo-nome { font-size: 1.1em; font-weight: bold; letter-spacing: 0.2px; }
+      .tabela-efetivo td { border-bottom: 1px solid rgba(100, 116, 139, 0.2); vertical-align: middle; line-height: 1.1; padding: 0.3em 0.5vw;}
+      .efetivo-nome { font-size: 1.1em; font-weight: bold; letter-spacing: 0.3px; }
       .efetivo-just { font-size: 0.85em; color: #38bdf8; margin-top: 0.2em; }
       .badge-sit { font-size: 0.9em; padding: 0.3em 0.8em; border-radius: 4px; }
 
-      /* ANIMAÇÕES TÁTICAS */
-      @keyframes pulseGlow { 0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); background-color: rgba(16, 185, 129, 0.1); } 50% { box-shadow: 0 0 2vh 0.5vh rgba(16, 185, 129, 0.5); background-color: rgba(16, 185, 129, 0.25); border-left-color: #34d399; } 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); background-color: rgba(16, 185, 129, 0.1); } }
+      /* ========================================== */
+      /* ANIMAÇÕES TÁTICAS                          */
+      /* ========================================== */
+      @keyframes pulseGlow { 
+        0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); background-color: rgba(16, 185, 129, 0.1); } 
+        50% { box-shadow: 0 0 2vh 0.5vh rgba(16, 185, 129, 0.5); background-color: rgba(16, 185, 129, 0.25); border-left-color: #34d399; } 
+        100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); background-color: rgba(16, 185, 129, 0.1); } 
+      }
+      
+      /* Animação para Equipamentos Atrasados (> 5 Dias) */
+      @keyframes pulseGlowRed { 
+        0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); background-color: rgba(239, 68, 68, 0.1); } 
+        50% { box-shadow: 0 0 2vh 0.5vh rgba(239, 68, 68, 0.5); background-color: rgba(239, 68, 68, 0.25); border-left-color: #ef4444; } 
+        100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); background-color: rgba(239, 68, 68, 0.1); } 
+      }
+      
       @keyframes blinkText { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
+      
       .missao-hoje { animation: pulseGlow 2s infinite ease-in-out; border-left-width: 8px !important; }
+      .equip-atrasado { animation: pulseGlowRed 2s infinite ease-in-out; border-left-color: #ef4444 !important; border-left-width: 8px !important; }
       .badge-blink-anim { animation: blinkText 1.5s infinite ease-in-out; }
     </style>
   </head>
@@ -88,15 +104,15 @@
         <!-- COLUNA 1: CONTROLE DO EFETIVO -->
         <div class="col-3 tv-quadro d-flex flex-column">
           <div class="d-flex justify-content-between align-items-end mb-1 border-bottom border-secondary pb-1" style="border-width: 2px !important; border-color: #475569 !important;">
-            <h4 class="mb-0 text-uppercase fw-bold" style="letter-spacing: 2px; font-size: 2vh; color: #94a3b8;">Efetivo</h4>
-            <span class="badge bg-danger" id="qtd-alteracoes" style="font-size: 1.4vh;">0 Alt</span>
+            <h4 class="mb-0 text-uppercase fw-bold" style="letter-spacing: 2px; font-size: 2.2vh; color: #94a3b8;">Controle do Efetivo</h4>
+            <span class="badge bg-danger" id="qtd-alteracoes" style="font-size: 1.6vh;">0 Alterações</span>
           </div>
           <!-- WRAPPER PARA O MOTOR MEDIR -->
           <div id="wrapper-efetivo" style="flex: 1; overflow: hidden; position: relative;">
             <table id="content-efetivo" class="tabela-efetivo mt-1">
               <thead>
                 <tr>
-                  <th>Posto/Nome</th>
+                  <th>Posto/Grad/Nome</th>
                   <th class="text-center">Situação</th>
                 </tr>
               </thead>
@@ -122,7 +138,7 @@
              <div id="content-missoes" style="width: 100%;"></div>
           </div>
         </div>
-
+        
         <!-- COLUNA 4: EQUIPAMENTOS (MANUTENÇÃO) -->
         <div class="col-3 tv-quadro d-flex flex-column">
           <h4 class="tv-column-title" style="color: #f59e0b;">Manutenção</h4>
@@ -192,7 +208,7 @@
           // ==========================================
           let efetivoTotal = dados.efetivo || [];
           let totalAlteracoes = efetivoTotal.filter(m => m.situacao !== 'P' && m.situacao !== 'PENDENTE').length;
-          document.getElementById('qtd-alteracoes').innerText = `${totalAlteracoes} Alt`;
+          document.getElementById('qtd-alteracoes').innerText = `${totalAlteracoes} Alterações`;
 
           let htmlEfetivo = efetivoTotal.map(m => {
             let sit = m.situacao || '-';
@@ -260,18 +276,48 @@
           }).join('') || '<div class="text-center text-muted mt-5" style="font-size: 2.2vh;">SEM MISSÕES AGENDADAS</div>';
 
           // ==========================================
-          // 4. CARREGAR EQUIPAMENTOS EM MANUTENÇÃO
+          // 4. CARREGAR EQUIPAMENTOS EM MANUTENÇÃO (COM RASTREADOR DE ATRASO)
           // ==========================================
           let equipamentos = dados.equipamentos || [];
-          document.getElementById('content-equipamentos').innerHTML = equipamentos.map(eq => `
-            <div class="equip-card shadow">
-              <div class="equip-data"><i class="bi bi-box-arrow-in-right"></i> Entrada: ${eq.data}</div>
-              <div class="equip-titulo">${eq.equipamento}</div>
-              <div class="equip-desc"><i class="bi bi-person"></i> Cliente: ${eq.cliente}</div>
-              <div class="equip-desc"><i class="bi bi-wrench"></i> Téc: ${eq.tecnico}</div>
-              <div class="equip-desc" style="color: #ef4444;"><i class="bi bi-exclamation-triangle-fill"></i> ${eq.problema}</div>
-            </div>
-          `).join('') || '<div class="text-center text-muted mt-5" style="font-size: 2.2vh;">NENHUM EQUIPAMENTO NA OFICINA</div>';
+          
+          let hojeData = new Date();
+          hojeData.setHours(0,0,0,0); // Zera as horas para comparar apenas os dias exatos
+
+          document.getElementById('content-equipamentos').innerHTML = equipamentos.map(eq => {
+            let isAtrasado = false;
+            let diffDias = 0;
+            
+            // Lógica de leitura de data (Ex: "25/08/2026" ou "25/08/2026 10:30")
+            if (eq.data && eq.data !== "-") {
+                let pts = eq.data.toString().split(' ')[0].split('/'); // Corta no espaço (se houver hora) e divide por /
+                if (pts.length === 3) {
+                    let ano = pts[2].length === 2 ? "20" + pts[2] : pts[2]; // Previne erro se o ano for só "26"
+                    let dEq = new Date(ano, pts[1] - 1, pts[0]);
+                    dEq.setHours(0,0,0,0);
+                    
+                    // Calcula a diferença em dias corridos
+                    diffDias = Math.floor((hojeData.getTime() - dEq.getTime()) / (1000 * 3600 * 24));
+                    
+                    if (diffDias >= 5) {
+                        isAtrasado = true;
+                    }
+                }
+            }
+
+            let classeAtraso = isAtrasado ? 'equip-atrasado' : '';
+            let iconeData = isAtrasado ? 'bi-exclamation-octagon-fill' : 'bi-box-arrow-in-right';
+            let badgePrioridade = isAtrasado ? `<span class="badge bg-danger ms-2 badge-blink-anim" style="vertical-align: middle;">PRIORIDADE (+${diffDias}d)</span>` : '';
+
+            return `
+              <div class="equip-card shadow ${classeAtraso}">
+                <div class="equip-data"><i class="bi ${iconeData}"></i> Entrada: ${eq.data} ${badgePrioridade}</div>
+                <div class="equip-titulo">${eq.equipamento}</div>
+                <div class="equip-desc"><i class="bi bi-person"></i> Cliente: ${eq.cliente}</div>
+                <div class="equip-desc"><i class="bi bi-wrench"></i> Téc: ${eq.tecnico}</div>
+                <div class="equip-desc" style="color: #ef4444;"><i class="bi bi-exclamation-triangle-fill"></i> ${eq.problema}</div>
+              </div>
+            `;
+          }).join('') || '<div class="text-center text-muted mt-5" style="font-size: 2.2vh;">NENHUM EQUIPAMENTO NA OFICINA</div>';
 
           // ==========================================
           // 5. APLICAR O MOTOR DE FORÇA BRUTA (GPU SCALING) NAS 4 COLUNAS
@@ -301,7 +347,6 @@
       window.onload = () => {
         atualizarPainel(); 
         atualizarRelogioEData(); 
-        // A ATUALIZAÇÃO SILENCIOSA A CADA 3 MINUTOS ESTÁ MANTIDA!
         setInterval(atualizarPainel, 180000); 
         setInterval(atualizarRelogioEData, 1000); 
       };
