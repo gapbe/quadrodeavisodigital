@@ -46,15 +46,15 @@
       .tv-quadro:last-child { border-right: none; }
 
       /* Bases Visuais Proporcionais (Usando 'em' para escala perfeita no motor JS) */
-      .aviso-card { background-color: rgba(59, 130, 246, 0.1); border-left: 5px solid #3b82f6; border-radius: 4px; display: flex; align-items: center; padding: 0.8em; margin-bottom: 0.8em; font-size: 1em;}
-      .missao-card { background-color: rgba(16, 185, 129, 0.1); border-left: 5px solid #10b981; border-radius: 4px; padding: 0.8em; margin-bottom: 0.8em; font-size: 1em;}
+      .aviso-card { background-color: rgba(59, 130, 246, 0.1); border-left: 5px solid #3b82f6; border-radius: 4px; display: flex; align-items: center; padding: 0.8em; margin-bottom: 0.8em; font-size: 1em; word-wrap: break-word; overflow-wrap: break-word;}
+      .missao-card { background-color: rgba(16, 185, 129, 0.1); border-left: 5px solid #10b981; border-radius: 4px; padding: 0.8em; margin-bottom: 0.8em; font-size: 1em; word-wrap: break-word; overflow-wrap: break-word;}
       .missao-data { color: #10b981; font-weight: bold; font-size: 0.85em;}
       .missao-titulo { font-weight: bold; margin-top: 0.3em; font-size: 1.15em;}
       .missao-local { color: #cbd5e1; margin-top: 0.4em; opacity: 0.8; font-size: 0.8em;}
       .badge-blink { font-size: 0.85em; padding: 0.2em 0.6em; vertical-align: middle; }
 
-      /* NOVO CARD EQUIPAMENTOS - PADRÃO RIGOROSO DA COLUNA DE MISSÕES */
-      .equip-card { background-color: rgba(245, 158, 11, 0.1); border-left: 5px solid #f59e0b; border-radius: 4px; padding: 0.8em; margin-bottom: 0.8em; font-size: 1em; transition: all 0.3s ease;}
+      /* NOVO CARD EQUIPAMENTOS - PADRÃO RIGOROSO E PROTEGIDO CONTRA VAZAMENTO */
+      .equip-card { background-color: rgba(245, 158, 11, 0.1); border-left: 5px solid #f59e0b; border-radius: 4px; padding: 0.8em; margin-bottom: 0.8em; font-size: 1em; transition: all 0.3s ease; word-wrap: break-word; overflow-wrap: break-word;}
       .equip-data { color: #f59e0b; font-weight: bold; font-size: 0.85em;}
       .equip-titulo { font-weight: bold; margin-top: 0.3em; font-size: 1.15em;}
       .equip-desc { color: #cbd5e1; margin-top: 0.4em; opacity: 0.8; font-size: 0.8em;}
@@ -194,7 +194,8 @@
               let scale = limiteAltura / content.scrollHeight;
               scale = scale * 0.98;
               content.style.transform = `scale(${scale})`;
-              content.style.transformOrigin = "top center";
+              // 🔥 CORREÇÃO CIRÚRGICA: Ancora à esquerda para impedir corte de texto na direita
+              content.style.transformOrigin = "top left"; 
               content.style.width = `${(100 / scale)}%`;
           }
       }
@@ -275,7 +276,7 @@
           }).join('') || '<div class="text-center text-muted mt-5" style="font-size: 2.2vh;">SEM MISSÕES AGENDADAS</div>';
 
           // ==========================================
-          // 4. CARREGAR EQUIPAMENTOS EM MANUTENÇÃO (COMPACTAÇÃO SIMÉTRICA)
+          // 4. CARREGAR EQUIPAMENTOS EM MANUTENÇÃO
           // ==========================================
           let equipamentos = dados.equipamentos || [];
           
@@ -288,7 +289,6 @@
             let dataCurta = eq.data;
             
             if (eq.data && eq.data !== "-") {
-                // Formatação curta para ficar IDÊNTICO às Missões (ex: "21/09 - 13:55")
                 let pCompleto = eq.data.toString().split(' ');
                 let pts = pCompleto[0].split('/'); 
                 if (pts.length === 3) {
@@ -319,7 +319,7 @@
             let tecRecebeu = eq.tecnico || eq.tecnicoRecebeu || "-";
             let tecManut = eq.tecnicoManutencao || "-";
 
-            // Compactação dos metadados em uma única linha simulando o campo "Local" da Missão.
+            // Card protegido contra vazamentos
             return `
               <div class="equip-card shadow ${classeAtraso}">
                 <div class="equip-data"><i class="bi ${iconeData}"></i> ${dataCurta} ${badgePrioridade}</div>
@@ -337,7 +337,6 @@
               forcarEncaixeNaTela('wrapper-efetivo', 'content-efetivo', 2.5);
               forcarEncaixeNaTela('wrapper-avisos', 'content-avisos', 2.8);
               forcarEncaixeNaTela('wrapper-missoes', 'content-missoes', 2.8);
-              // Igualado estritamente à força aplicada em Missões e Avisos
               forcarEncaixeNaTela('wrapper-equipamentos', 'content-equipamentos', 2.8);
           }, 50);
 
