@@ -275,7 +275,7 @@
           }).join('') || '<div class="text-center text-muted mt-5" style="font-size: 2.2vh;">SEM MISSÕES AGENDADAS</div>';
 
           // ==========================================
-          // 4. CARREGAR EQUIPAMENTOS EM MANUTENÇÃO (COM RASTREADOR DE ATRASO)
+          // 4. CARREGAR EQUIPAMENTOS EM MANUTENÇÃO (COMPACTAÇÃO SIMÉTRICA)
           // ==========================================
           let equipamentos = dados.equipamentos || [];
           
@@ -285,9 +285,12 @@
           document.getElementById('content-equipamentos').innerHTML = equipamentos.map(eq => {
             let isAtrasado = false;
             let diffDias = 0;
+            let dataCurta = eq.data;
             
             if (eq.data && eq.data !== "-") {
-                let pts = eq.data.toString().split(' ')[0].split('/'); 
+                // Formatação curta para ficar IDÊNTICO às Missões (ex: "21/09 - 13:55")
+                let pCompleto = eq.data.toString().split(' ');
+                let pts = pCompleto[0].split('/'); 
                 if (pts.length === 3) {
                     let ano = pts[2].length === 2 ? "20" + pts[2] : pts[2]; 
                     let dEq = new Date(ano, pts[1] - 1, pts[0]);
@@ -299,35 +302,42 @@
                         isAtrasado = true;
                     }
                 }
+                
+                if(pts.length >= 2) {
+                    dataCurta = pts[0] + '/' + pts[1];
+                    if(pCompleto[1]) {
+                        let hCurto = pCompleto[1].split(':');
+                        if(hCurto.length >= 2) dataCurta += ' - ' + hCurto[0] + ':' + hCurto[1];
+                    }
+                }
             }
 
             let classeAtraso = isAtrasado ? 'equip-atrasado' : '';
-            let iconeData = isAtrasado ? 'bi-exclamation-octagon-fill' : 'bi-box-arrow-in-right';
+            let iconeData = isAtrasado ? 'bi-exclamation-octagon-fill' : 'bi-calendar-event';
             let badgePrioridade = isAtrasado ? `<span class="badge bg-danger ms-2 badge-blink-anim" style="vertical-align: middle;">PRIORIDADE (+${diffDias}d)</span>` : '';
 
             let tecRecebeu = eq.tecnico || eq.tecnicoRecebeu || "-";
             let tecManut = eq.tecnicoManutencao || "-";
 
+            // Compactação dos metadados em uma única linha simulando o campo "Local" da Missão.
             return `
               <div class="equip-card shadow ${classeAtraso}">
-                <div class="equip-data"><i class="bi ${iconeData}"></i> Entrada: ${eq.data} ${badgePrioridade}</div>
+                <div class="equip-data"><i class="bi ${iconeData}"></i> ${dataCurta} ${badgePrioridade}</div>
                 <div class="equip-titulo">${eq.equipamento}</div>
-                <div class="equip-desc"><i class="bi bi-person"></i> Cliente: ${eq.cliente}</div>
-                <div class="equip-desc"><i class="bi bi-box-arrow-in-down"></i> Recebedor: ${tecRecebeu}</div>
-                <div class="equip-desc"><i class="bi bi-wrench"></i> Resp: ${tecManut}</div>
-                <div class="equip-desc" style="color: #ef4444;"><i class="bi bi-exclamation-triangle-fill"></i> ${eq.problema}</div>
+                <div class="equip-desc"><i class="bi bi-person"></i> ${eq.cliente} &nbsp;&bull;&nbsp; Rec: ${tecRecebeu} &nbsp;&bull;&nbsp; Resp: ${tecManut}</div>
+                <div class="equip-desc" style="color: #ef4444; margin-top: 0.3em;"><i class="bi bi-exclamation-triangle-fill"></i> ${eq.problema}</div>
               </div>
             `;
           }).join('') || '<div class="text-center text-muted mt-5" style="font-size: 2.2vh;">NENHUM EQUIPAMENTO NA OFICINA</div>';
 
           // ==========================================
-          // 5. APLICAR O MOTOR DE FORÇA BRUTA (GPU SCALING) COM PADRÃO EXATO
+          // 5. APLICAR O MOTOR DE FORÇA BRUTA (GPU SCALING)
           // ==========================================
           setTimeout(() => {
               forcarEncaixeNaTela('wrapper-efetivo', 'content-efetivo', 2.5);
               forcarEncaixeNaTela('wrapper-avisos', 'content-avisos', 2.8);
               forcarEncaixeNaTela('wrapper-missoes', 'content-missoes', 2.8);
-              // BASE CORRIGIDA: Igual a Avisos e Missões para garantir a simetria (2.8).
+              // Igualado estritamente à força aplicada em Missões e Avisos
               forcarEncaixeNaTela('wrapper-equipamentos', 'content-equipamentos', 2.8);
           }, 50);
 
