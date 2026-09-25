@@ -53,11 +53,11 @@
       .missao-local { color: #cbd5e1; margin-top: 0.4em; opacity: 0.8; font-size: 0.8em;}
       .badge-blink { font-size: 0.85em; padding: 0.2em 0.6em; vertical-align: middle; }
 
-      /* Novo Card: Equipamentos - Ajustado para ocupar melhor os espaços */
+      /* Novo Card: Equipamentos - PADRÃO EXATO MISSÕES/AVISOS */
       .equip-card { background-color: rgba(245, 158, 11, 0.1); border-left: 5px solid #f59e0b; border-radius: 4px; padding: 0.8em; margin-bottom: 0.8em; font-size: 1em; transition: all 0.3s ease;}
       .equip-data { color: #f59e0b; font-weight: bold; font-size: 0.85em;}
-      .equip-titulo { font-weight: bold; margin-top: 0.2em; font-size: 1.1em;}
-      .equip-desc { color: #cbd5e1; margin-top: 0.2em; opacity: 0.9; font-size: 0.85em; line-height: 1.15;}
+      .equip-titulo { font-weight: bold; margin-top: 0.3em; font-size: 1.15em;}
+      .equip-desc { color: #cbd5e1; margin-top: 0.4em; opacity: 0.8; font-size: 0.8em;}
 
       /* TABELA BASE EFETIVO */
       .tabela-efetivo { width: 100%; border-collapse: collapse; }
@@ -275,10 +275,9 @@
           }).join('') || '<div class="text-center text-muted mt-5" style="font-size: 2.2vh;">SEM MISSÕES AGENDADAS</div>';
 
           // ==========================================
-          // 4. CARREGAR EQUIPAMENTOS EM MANUTENÇÃO (COM RASTREADOR DE ATRASO)
+          // 4. CARREGAR EQUIPAMENTOS EM MANUTENÇÃO
           // ==========================================
           let equipamentos = dados.equipamentos || [];
-          let qtdEquip = equipamentos.length === 0 ? 1 : equipamentos.length;
           
           let hojeData = new Date();
           hojeData.setHours(0,0,0,0); 
@@ -306,7 +305,6 @@
             let iconeData = isAtrasado ? 'bi-exclamation-octagon-fill' : 'bi-box-arrow-in-right';
             let badgePrioridade = isAtrasado ? `<span class="badge bg-danger ms-2 badge-blink-anim" style="vertical-align: middle;">PRIORIDADE (+${diffDias}d)</span>` : '';
 
-            // MODIFICAÇÕES APLICADAS: Recebedor e Técnico Responsável
             let tecRecebeu = eq.tecnico || eq.tecnicoRecebeu || "-";
             let tecManut = eq.tecnicoManutencao || "-";
 
@@ -323,21 +321,14 @@
           }).join('') || '<div class="text-center text-muted mt-5" style="font-size: 2.2vh;">NENHUM EQUIPAMENTO NA OFICINA</div>';
 
           // ==========================================
-          // 5. APLICAR O MOTOR DE FORÇA BRUTA (GPU SCALING)
+          // 5. APLICAR O MOTOR DE FORÇA BRUTA (GPU SCALING) COM PADRÃO EXATO
           // ==========================================
           setTimeout(() => {
               forcarEncaixeNaTela('wrapper-efetivo', 'content-efetivo', 2.5);
               forcarEncaixeNaTela('wrapper-avisos', 'content-avisos', 2.8);
               forcarEncaixeNaTela('wrapper-missoes', 'content-missoes', 2.8);
-              
-              // CÁLCULO DINÂMICO DE EXPANSÃO PARA EQUIPAMENTOS: 
-              // Garante que, se houver poucos cards, eles crescerão para preencher a coluna.
-              // Se houver muitos, a GPU fará a compressão elegante.
-              let calcSizeEq = 85 / (qtdEquip * 7); 
-              if (calcSizeEq > 2.6) calcSizeEq = 2.6; // Teto para o cartão não ficar desproporcional
-              if (calcSizeEq < 1.5) calcSizeEq = 1.5; // Piso seguro antes do loop aplicar redução
-              
-              forcarEncaixeNaTela('wrapper-equipamentos', 'content-equipamentos', calcSizeEq);
+              // PADRÃO RESTAURADO: Todas as 3 colunas de cards processam a mesma escala exata
+              forcarEncaixeNaTela('wrapper-equipamentos', 'content-equipamentos', 2.8);
           }, 50);
 
         }).catch(e => console.error("Erro no processamento da API:", e));
