@@ -53,11 +53,11 @@
       .missao-local { color: #cbd5e1; margin-top: 0.4em; opacity: 0.8; font-size: 0.8em;}
       .badge-blink { font-size: 0.85em; padding: 0.2em 0.6em; vertical-align: middle; }
 
-      /* Novo Card: Equipamentos (Manutenção Compactada) */
-      .equip-card { background-color: rgba(245, 158, 11, 0.1); border-left: 5px solid #f59e0b; border-radius: 4px; padding: 0.6em; margin-bottom: 0.6em; font-size: 1em; transition: all 0.3s ease;}
+      /* Novo Card: Equipamentos - Ajustado para ocupar melhor os espaços */
+      .equip-card { background-color: rgba(245, 158, 11, 0.1); border-left: 5px solid #f59e0b; border-radius: 4px; padding: 0.8em; margin-bottom: 0.8em; font-size: 1em; transition: all 0.3s ease;}
       .equip-data { color: #f59e0b; font-weight: bold; font-size: 0.85em;}
       .equip-titulo { font-weight: bold; margin-top: 0.2em; font-size: 1.1em;}
-      .equip-desc { color: #cbd5e1; margin-top: 0.2em; opacity: 0.9; font-size: 0.8em; line-height: 1.1;} /* Ajuste tático de espaçamento */
+      .equip-desc { color: #cbd5e1; margin-top: 0.2em; opacity: 0.9; font-size: 0.85em; line-height: 1.15;}
 
       /* TABELA BASE EFETIVO */
       .tabela-efetivo { width: 100%; border-collapse: collapse; }
@@ -107,7 +107,6 @@
             <h4 class="mb-0 text-uppercase fw-bold" style="letter-spacing: 2px; font-size: 2.2vh; color: #94a3b8;">Controle do Efetivo</h4>
             <span class="badge bg-danger" id="qtd-alteracoes" style="font-size: 1.6vh;">0 Alterações</span>
           </div>
-          <!-- WRAPPER PARA O MOTOR MEDIR -->
           <div id="wrapper-efetivo" style="flex: 1; overflow: hidden; position: relative;">
             <table id="content-efetivo" class="tabela-efetivo mt-1">
               <thead>
@@ -279,23 +278,22 @@
           // 4. CARREGAR EQUIPAMENTOS EM MANUTENÇÃO (COM RASTREADOR DE ATRASO)
           // ==========================================
           let equipamentos = dados.equipamentos || [];
+          let qtdEquip = equipamentos.length === 0 ? 1 : equipamentos.length;
           
           let hojeData = new Date();
-          hojeData.setHours(0,0,0,0); // Zera as horas para comparar apenas os dias exatos
+          hojeData.setHours(0,0,0,0); 
 
           document.getElementById('content-equipamentos').innerHTML = equipamentos.map(eq => {
             let isAtrasado = false;
             let diffDias = 0;
             
-            // Lógica de leitura de data robusta (Ex: "25/08/2026" ou "25/08/2026 10:30")
             if (eq.data && eq.data !== "-") {
-                let pts = eq.data.toString().split(' ')[0].split('/'); // Corta no espaço (se houver hora) e divide por /
+                let pts = eq.data.toString().split(' ')[0].split('/'); 
                 if (pts.length === 3) {
-                    let ano = pts[2].length === 2 ? "20" + pts[2] : pts[2]; // Previne erro se o ano for só "26"
+                    let ano = pts[2].length === 2 ? "20" + pts[2] : pts[2]; 
                     let dEq = new Date(ano, pts[1] - 1, pts[0]);
                     dEq.setHours(0,0,0,0);
                     
-                    // Calcula a diferença em dias corridos
                     diffDias = Math.floor((hojeData.getTime() - dEq.getTime()) / (1000 * 3600 * 24));
                     
                     if (diffDias >= 5) {
@@ -307,12 +305,11 @@
             let classeAtraso = isAtrasado ? 'equip-atrasado' : '';
             let iconeData = isAtrasado ? 'bi-exclamation-octagon-fill' : 'bi-box-arrow-in-right';
             let badgePrioridade = isAtrasado ? `<span class="badge bg-danger ms-2 badge-blink-anim" style="vertical-align: middle;">PRIORIDADE (+${diffDias}d)</span>` : '';
-            
-            // Proteção contra fallback: Evitar mostrar 'undefined' se as chaves da API forem diferentes
+
+            // MODIFICAÇÕES APLICADAS: Recebedor e Técnico Responsável
             let tecRecebeu = eq.tecnico || eq.tecnicoRecebeu || "-";
             let tecManut = eq.tecnicoManutencao || "-";
 
-            // Modificação Tática Aplicada (Alteração da Nomenclatura e Espaçamento Compacto)
             return `
               <div class="equip-card shadow ${classeAtraso}">
                 <div class="equip-data"><i class="bi ${iconeData}"></i> Entrada: ${eq.data} ${badgePrioridade}</div>
@@ -326,14 +323,21 @@
           }).join('') || '<div class="text-center text-muted mt-5" style="font-size: 2.2vh;">NENHUM EQUIPAMENTO NA OFICINA</div>';
 
           // ==========================================
-          // 5. APLICAR O MOTOR DE FORÇA BRUTA (GPU SCALING) NAS 4 COLUNAS
+          // 5. APLICAR O MOTOR DE FORÇA BRUTA (GPU SCALING)
           // ==========================================
           setTimeout(() => {
               forcarEncaixeNaTela('wrapper-efetivo', 'content-efetivo', 2.5);
               forcarEncaixeNaTela('wrapper-avisos', 'content-avisos', 2.8);
               forcarEncaixeNaTela('wrapper-missoes', 'content-missoes', 2.8);
-              // Base matemática ajustada de 2.6 para 2.4 para dar prioridade de compactação devido às 6 linhas de texto por cartão
-              forcarEncaixeNaTela('wrapper-equipamentos', 'content-equipamentos', 2.4); 
+              
+              // CÁLCULO DINÂMICO DE EXPANSÃO PARA EQUIPAMENTOS: 
+              // Garante que, se houver poucos cards, eles crescerão para preencher a coluna.
+              // Se houver muitos, a GPU fará a compressão elegante.
+              let calcSizeEq = 85 / (qtdEquip * 7); 
+              if (calcSizeEq > 2.6) calcSizeEq = 2.6; // Teto para o cartão não ficar desproporcional
+              if (calcSizeEq < 1.5) calcSizeEq = 1.5; // Piso seguro antes do loop aplicar redução
+              
+              forcarEncaixeNaTela('wrapper-equipamentos', 'content-equipamentos', calcSizeEq);
           }, 50);
 
         }).catch(e => console.error("Erro no processamento da API:", e));
@@ -354,7 +358,6 @@
       window.onload = () => {
         atualizarPainel(); 
         atualizarRelogioEData(); 
-        // A ATUALIZAÇÃO SILENCIOSA A CADA 3 MINUTOS ESTÁ MANTIDA!
         setInterval(atualizarPainel, 180000); 
         setInterval(atualizarRelogioEData, 1000); 
       };
