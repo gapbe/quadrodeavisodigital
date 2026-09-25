@@ -53,7 +53,7 @@
       .missao-local { color: #cbd5e1; margin-top: 0.4em; opacity: 0.8; font-size: 0.8em;}
       .badge-blink { font-size: 0.85em; padding: 0.2em 0.6em; vertical-align: middle; }
 
-      /* Novo Card: Equipamentos - PADRÃO EXATO MISSÕES/AVISOS */
+      /* NOVO CARD EQUIPAMENTOS - PADRÃO RIGOROSO DA COLUNA DE MISSÕES */
       .equip-card { background-color: rgba(245, 158, 11, 0.1); border-left: 5px solid #f59e0b; border-radius: 4px; padding: 0.8em; margin-bottom: 0.8em; font-size: 1em; transition: all 0.3s ease;}
       .equip-data { color: #f59e0b; font-weight: bold; font-size: 0.85em;}
       .equip-titulo { font-weight: bold; margin-top: 0.3em; font-size: 1.15em;}
@@ -275,7 +275,7 @@
           }).join('') || '<div class="text-center text-muted mt-5" style="font-size: 2.2vh;">SEM MISSÕES AGENDADAS</div>';
 
           // ==========================================
-          // 4. CARREGAR EQUIPAMENTOS EM MANUTENÇÃO
+          // 4. CARREGAR EQUIPAMENTOS EM MANUTENÇÃO (COM RASTREADOR DE ATRASO)
           // ==========================================
           let equipamentos = dados.equipamentos || [];
           
@@ -327,7 +327,7 @@
               forcarEncaixeNaTela('wrapper-efetivo', 'content-efetivo', 2.5);
               forcarEncaixeNaTela('wrapper-avisos', 'content-avisos', 2.8);
               forcarEncaixeNaTela('wrapper-missoes', 'content-missoes', 2.8);
-              // PADRÃO RESTAURADO: Todas as 3 colunas de cards processam a mesma escala exata
+              // BASE CORRIGIDA: Igual a Avisos e Missões para garantir a simetria (2.8).
               forcarEncaixeNaTela('wrapper-equipamentos', 'content-equipamentos', 2.8);
           }, 50);
 
