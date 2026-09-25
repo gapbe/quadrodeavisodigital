@@ -53,11 +53,11 @@
       .missao-local { color: #cbd5e1; margin-top: 0.4em; opacity: 0.8; font-size: 0.8em;}
       .badge-blink { font-size: 0.85em; padding: 0.2em 0.6em; vertical-align: middle; }
 
-      /* Novo Card: Equipamentos */
-      .equip-card { background-color: rgba(245, 158, 11, 0.1); border-left: 5px solid #f59e0b; border-radius: 4px; padding: 0.8em; margin-bottom: 0.8em; font-size: 1em; transition: all 0.3s ease;}
+      /* Novo Card: Equipamentos (Manutenção Compactada) */
+      .equip-card { background-color: rgba(245, 158, 11, 0.1); border-left: 5px solid #f59e0b; border-radius: 4px; padding: 0.6em; margin-bottom: 0.6em; font-size: 1em; transition: all 0.3s ease;}
       .equip-data { color: #f59e0b; font-weight: bold; font-size: 0.85em;}
-      .equip-titulo { font-weight: bold; margin-top: 0.3em; font-size: 1.15em;}
-      .equip-desc { color: #cbd5e1; margin-top: 0.4em; opacity: 0.9; font-size: 0.8em; line-height: 1.2;}
+      .equip-titulo { font-weight: bold; margin-top: 0.2em; font-size: 1.1em;}
+      .equip-desc { color: #cbd5e1; margin-top: 0.2em; opacity: 0.9; font-size: 0.8em; line-height: 1.1;} /* Ajuste tático de espaçamento */
 
       /* TABELA BASE EFETIVO */
       .tabela-efetivo { width: 100%; border-collapse: collapse; }
@@ -287,7 +287,7 @@
             let isAtrasado = false;
             let diffDias = 0;
             
-            // Lógica de leitura de data (Ex: "25/08/2026" ou "25/08/2026 10:30")
+            // Lógica de leitura de data robusta (Ex: "25/08/2026" ou "25/08/2026 10:30")
             if (eq.data && eq.data !== "-") {
                 let pts = eq.data.toString().split(' ')[0].split('/'); // Corta no espaço (se houver hora) e divide por /
                 if (pts.length === 3) {
@@ -307,13 +307,19 @@
             let classeAtraso = isAtrasado ? 'equip-atrasado' : '';
             let iconeData = isAtrasado ? 'bi-exclamation-octagon-fill' : 'bi-box-arrow-in-right';
             let badgePrioridade = isAtrasado ? `<span class="badge bg-danger ms-2 badge-blink-anim" style="vertical-align: middle;">PRIORIDADE (+${diffDias}d)</span>` : '';
+            
+            // Proteção contra fallback: Evitar mostrar 'undefined' se as chaves da API forem diferentes
+            let tecRecebeu = eq.tecnico || eq.tecnicoRecebeu || "-";
+            let tecManut = eq.tecnicoManutencao || "-";
 
+            // Modificação Tática Aplicada (Alteração da Nomenclatura e Espaçamento Compacto)
             return `
               <div class="equip-card shadow ${classeAtraso}">
                 <div class="equip-data"><i class="bi ${iconeData}"></i> Entrada: ${eq.data} ${badgePrioridade}</div>
                 <div class="equip-titulo">${eq.equipamento}</div>
                 <div class="equip-desc"><i class="bi bi-person"></i> Cliente: ${eq.cliente}</div>
-                <div class="equip-desc"><i class="bi bi-wrench"></i> Téc: ${eq.tecnico}</div>
+                <div class="equip-desc"><i class="bi bi-box-arrow-in-down"></i> Recebedor: ${tecRecebeu}</div>
+                <div class="equip-desc"><i class="bi bi-wrench"></i> Resp: ${tecManut}</div>
                 <div class="equip-desc" style="color: #ef4444;"><i class="bi bi-exclamation-triangle-fill"></i> ${eq.problema}</div>
               </div>
             `;
@@ -326,7 +332,8 @@
               forcarEncaixeNaTela('wrapper-efetivo', 'content-efetivo', 2.5);
               forcarEncaixeNaTela('wrapper-avisos', 'content-avisos', 2.8);
               forcarEncaixeNaTela('wrapper-missoes', 'content-missoes', 2.8);
-              forcarEncaixeNaTela('wrapper-equipamentos', 'content-equipamentos', 2.6); // Escala independente para a Manutenção
+              // Base matemática ajustada de 2.6 para 2.4 para dar prioridade de compactação devido às 6 linhas de texto por cartão
+              forcarEncaixeNaTela('wrapper-equipamentos', 'content-equipamentos', 2.4); 
           }, 50);
 
         }).catch(e => console.error("Erro no processamento da API:", e));
@@ -347,6 +354,7 @@
       window.onload = () => {
         atualizarPainel(); 
         atualizarRelogioEData(); 
+        // A ATUALIZAÇÃO SILENCIOSA A CADA 3 MINUTOS ESTÁ MANTIDA!
         setInterval(atualizarPainel, 180000); 
         setInterval(atualizarRelogioEData, 1000); 
       };
