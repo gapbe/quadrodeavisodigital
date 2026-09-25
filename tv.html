@@ -45,7 +45,7 @@
       .tv-quadro { height: 92vh; border-right: 2px solid #334155; padding: 1vh 1.5vw; }
       .tv-quadro:last-child { border-right: none; }
 
-      /* Bases Visuais Proporcionais (Usando 'em' para escala perfeita no motor JS) */
+      /* Bases Visuais Proporcionais */
       .aviso-card { background-color: rgba(59, 130, 246, 0.1); border-left: 5px solid #3b82f6; border-radius: 4px; display: flex; align-items: center; padding: 0.8em; margin-bottom: 0.8em; font-size: 1em; word-wrap: break-word; overflow-wrap: break-word;}
       .missao-card { background-color: rgba(16, 185, 129, 0.1); border-left: 5px solid #10b981; border-radius: 4px; padding: 0.8em; margin-bottom: 0.8em; font-size: 1em; word-wrap: break-word; overflow-wrap: break-word;}
       .missao-data { color: #10b981; font-weight: bold; font-size: 0.85em;}
@@ -53,7 +53,7 @@
       .missao-local { color: #cbd5e1; margin-top: 0.4em; opacity: 0.8; font-size: 0.8em;}
       .badge-blink { font-size: 0.85em; padding: 0.2em 0.6em; vertical-align: middle; }
 
-      /* NOVO CARD EQUIPAMENTOS - PADRÃO RIGOROSO E PROTEGIDO CONTRA VAZAMENTO */
+      /* NOVO CARD EQUIPAMENTOS */
       .equip-card { background-color: rgba(245, 158, 11, 0.1); border-left: 5px solid #f59e0b; border-radius: 4px; padding: 0.8em; margin-bottom: 0.8em; font-size: 1em; transition: all 0.3s ease; word-wrap: break-word; overflow-wrap: break-word;}
       .equip-data { color: #f59e0b; font-weight: bold; font-size: 0.85em;}
       .equip-titulo { font-weight: bold; margin-top: 0.3em; font-size: 1.15em;}
@@ -67,16 +67,13 @@
       .efetivo-just { font-size: 0.85em; color: #38bdf8; margin-top: 0.2em; }
       .badge-sit { font-size: 0.9em; padding: 0.3em 0.8em; border-radius: 4px; }
 
-      /* ========================================== */
-      /* ANIMAÇÕES TÁTICAS                          */
-      /* ========================================== */
+      /* ANIMAÇÕES TÁTICAS */
       @keyframes pulseGlow { 
         0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); background-color: rgba(16, 185, 129, 0.1); } 
         50% { box-shadow: 0 0 2vh 0.5vh rgba(16, 185, 129, 0.5); background-color: rgba(16, 185, 129, 0.25); border-left-color: #34d399; } 
         100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); background-color: rgba(16, 185, 129, 0.1); } 
       }
       
-      /* Animação para Equipamentos Atrasados (> 5 Dias) */
       @keyframes pulseGlowRed { 
         0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); background-color: rgba(239, 68, 68, 0.1); } 
         50% { box-shadow: 0 0 2vh 0.5vh rgba(239, 68, 68, 0.5); background-color: rgba(239, 68, 68, 0.25); border-left-color: #ef4444; } 
@@ -101,7 +98,7 @@
     <div class="container-fluid px-0">
       <div class="row g-0">
         
-        <!-- COLUNA 1: CONTROLE DO EFETIVO -->
+        <!-- COLUNAS -->
         <div class="col-3 tv-quadro d-flex flex-column">
           <div class="d-flex justify-content-between align-items-end mb-1 border-bottom border-secondary pb-1" style="border-width: 2px !important; border-color: #475569 !important;">
             <h4 class="mb-0 text-uppercase fw-bold" style="letter-spacing: 2px; font-size: 2.2vh; color: #94a3b8;">Controle do Efetivo</h4>
@@ -122,7 +119,6 @@
           </div>
         </div>
         
-        <!-- COLUNA 2: AVISOS -->
         <div class="col-3 tv-quadro d-flex flex-column">
           <h4 class="tv-column-title" style="color: #60a5fa;">Avisos</h4>
           <div id="wrapper-avisos" style="flex: 1; overflow: hidden; position: relative;">
@@ -130,7 +126,6 @@
           </div>
         </div>
         
-        <!-- COLUNA 3: MISSÕES -->
         <div class="col-3 tv-quadro d-flex flex-column">
           <h4 class="tv-column-title" style="color: #34d399;">Missões</h4>
           <div id="wrapper-missoes" style="flex: 1; overflow: hidden; position: relative;">
@@ -138,7 +133,6 @@
           </div>
         </div>
         
-        <!-- COLUNA 4: EQUIPAMENTOS (MANUTENÇÃO) -->
         <div class="col-3 tv-quadro d-flex flex-column">
           <h4 class="tv-column-title" style="color: #f59e0b;">Manutenção</h4>
           <div id="wrapper-equipamentos" style="flex: 1; overflow: hidden; position: relative;">
@@ -150,9 +144,6 @@
     </div>
 
     <script>
-      // ==========================================
-      // MOTOR DA API PWA 
-      // ==========================================
       async function chamarBackend(acao, parametros = {}) {
         const resposta = await fetch(OM_CONFIG.API_URL, {
           method: 'POST',
@@ -164,9 +155,6 @@
         else throw new Error(resultado.message);
       }
 
-      // ==========================================
-      // MOTOR DE FORÇA BRUTA (COMPRESSÃO ABSOLUTA GPU)
-      // ==========================================
       function forcarEncaixeNaTela(wrapperId, contentId, tamanhoInicialVh) {
           let wrapper = document.getElementById(wrapperId);
           let content = document.getElementById(contentId);
@@ -185,7 +173,6 @@
               currentSize -= 0.1;
               content.style.fontSize = currentSize + 'vh';
               loopCount++;
-
               if (content.scrollHeight >= prevHeight && loopCount > 2) break;
               prevHeight = content.scrollHeight;
           }
@@ -194,7 +181,6 @@
               let scale = limiteAltura / content.scrollHeight;
               scale = scale * 0.98;
               content.style.transform = `scale(${scale})`;
-              // 🔥 CORREÇÃO CIRÚRGICA: Ancora à esquerda para impedir corte de texto na direita
               content.style.transformOrigin = "top left"; 
               content.style.width = `${(100 / scale)}%`;
           }
@@ -203,9 +189,6 @@
       function atualizarPainel() {
         chamarBackend('obterDadosSistema').then(dados => {
           
-          // ==========================================
-          // 1. CARREGAR EFETIVO
-          // ==========================================
           let efetivoTotal = dados.efetivo || [];
           let totalAlteracoes = efetivoTotal.filter(m => m.situacao !== 'P' && m.situacao !== 'PENDENTE').length;
           document.getElementById('qtd-alteracoes').innerText = `${totalAlteracoes} Alterações`;
@@ -227,17 +210,11 @@
           if (efetivoTotal.length === 0) htmlEfetivo = `<tr><td colspan="2" class="text-center text-muted py-5" style="font-size: 2vh;">Efetivo não encontrado.</td></tr>`;
           document.getElementById('tv-efetivo-lista').innerHTML = htmlEfetivo;
 
-          // ==========================================
-          // 2. CARREGAR AVISOS
-          // ==========================================
           let avisos = dados.avisos.filter(a => a[1] && a[1].toString().trim().toUpperCase() === 'ATIVO');
           document.getElementById('content-avisos').innerHTML = avisos.map(a => `
             <div class="aviso-card shadow"><i class="bi bi-megaphone-fill me-3 text-primary" style="font-size: 1.3em;"></i><div>${a[3]}</div></div>
           `).join('') || '<div class="text-center text-muted mt-5" style="font-size: 2.2vh;">SEM AVISOS PENDENTES</div>';
 
-          // ==========================================
-          // 3. CARREGAR MISSÕES E ORDENAR CRONOLOGICAMENTE
-          // ==========================================
           dados.missoes.sort((a, b) => {
             function obterValorData(str) {
               if (!str) return 999999999999;
@@ -279,7 +256,6 @@
           // 4. CARREGAR EQUIPAMENTOS EM MANUTENÇÃO
           // ==========================================
           let equipamentos = dados.equipamentos || [];
-          
           let hojeData = new Date();
           hojeData.setHours(0,0,0,0); 
 
@@ -319,19 +295,21 @@
             let tecRecebeu = eq.tecnico || eq.tecnicoRecebeu || "-";
             let tecManut = eq.tecnicoManutencao || "-";
 
-            // Card protegido contra vazamentos
+            // 🔥 INJEÇÃO CIRÚRGICA: Campo "Resp" colorido em Azul Celeste e em Negrito
             return `
               <div class="equip-card shadow ${classeAtraso}">
                 <div class="equip-data"><i class="bi ${iconeData}"></i> ${dataCurta} ${badgePrioridade}</div>
                 <div class="equip-titulo">${eq.equipamento}</div>
-                <div class="equip-desc"><i class="bi bi-person"></i> ${eq.cliente} &nbsp;&bull;&nbsp; Rec: ${tecRecebeu} &nbsp;&bull;&nbsp; Resp: ${tecManut}</div>
+                <div class="equip-desc">
+                   <i class="bi bi-person"></i> ${eq.cliente} &nbsp;&bull;&nbsp; Rec: ${tecRecebeu} &nbsp;&bull;&nbsp; <span style="color: #60a5fa; font-weight: bold;">Resp: ${tecManut}</span>
+                </div>
                 <div class="equip-desc" style="color: #ef4444; margin-top: 0.3em;"><i class="bi bi-exclamation-triangle-fill"></i> ${eq.problema}</div>
               </div>
             `;
           }).join('') || '<div class="text-center text-muted mt-5" style="font-size: 2.2vh;">NENHUM EQUIPAMENTO NA OFICINA</div>';
 
           // ==========================================
-          // 5. APLICAR O MOTOR DE FORÇA BRUTA (GPU SCALING)
+          // 5. APLICAR O MOTOR DE FORÇA BRUTA
           // ==========================================
           setTimeout(() => {
               forcarEncaixeNaTela('wrapper-efetivo', 'content-efetivo', 2.5);
