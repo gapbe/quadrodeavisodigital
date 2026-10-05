@@ -53,7 +53,7 @@
       .missao-local { color: #cbd5e1; margin-top: 0.4em; opacity: 0.8; font-size: 0.8em;}
       .badge-blink { font-size: 0.85em; padding: 0.2em 0.6em; vertical-align: middle; }
 
-      /* NOVO CARD EQUIPAMENTOS */
+      /* NOVO CARD EQUIPAMENTOS - PADRÃO (Laranja/Âmbar) */
       .equip-card { background-color: rgba(245, 158, 11, 0.1); border-left: 5px solid #f59e0b; border-radius: 4px; padding: 0.8em; margin-bottom: 0.8em; font-size: 1em; transition: all 0.3s ease; word-wrap: break-word; overflow-wrap: break-word;}
       .equip-data { color: #f59e0b; font-weight: bold; font-size: 0.85em;}
       .equip-titulo { font-weight: bold; margin-top: 0.3em; font-size: 1.15em;}
@@ -67,7 +67,9 @@
       .efetivo-just { font-size: 0.85em; color: #38bdf8; margin-top: 0.2em; }
       .badge-sit { font-size: 0.9em; padding: 0.3em 0.8em; border-radius: 4px; }
 
-      /* ANIMAÇÕES TÁTICAS */
+      /* ========================================== */
+      /* ANIMAÇÕES TÁTICAS E CLASSES ESPECIAIS      */
+      /* ========================================== */
       @keyframes pulseGlow { 
         0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); background-color: rgba(16, 185, 129, 0.1); } 
         50% { box-shadow: 0 0 2vh 0.5vh rgba(16, 185, 129, 0.5); background-color: rgba(16, 185, 129, 0.25); border-left-color: #34d399; } 
@@ -79,11 +81,23 @@
         50% { box-shadow: 0 0 2vh 0.5vh rgba(239, 68, 68, 0.5); background-color: rgba(239, 68, 68, 0.25); border-left-color: #ef4444; } 
         100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); background-color: rgba(239, 68, 68, 0.1); } 
       }
+
+      /* 🔥 NOVA ANIMAÇÃO: EQUIPAMENTO PRONTO (VERDE) */
+      @keyframes pulseGlowGreen { 
+        0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); background-color: rgba(16, 185, 129, 0.1); } 
+        50% { box-shadow: 0 0 2vh 0.5vh rgba(16, 185, 129, 0.5); background-color: rgba(16, 185, 129, 0.25); border-left-color: #10b981; } 
+        100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); background-color: rgba(16, 185, 129, 0.1); } 
+      }
       
       @keyframes blinkText { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
       
       .missao-hoje { animation: pulseGlow 2s infinite ease-in-out; border-left-width: 8px !important; }
       .equip-atrasado { animation: pulseGlowRed 2s infinite ease-in-out; border-left-color: #ef4444 !important; border-left-width: 8px !important; }
+      
+      /* 🔥 NOVA CLASSE: EQUIPAMENTO PRONTO (M1 = SIM) */
+      .equip-pronto { animation: pulseGlowGreen 2.5s infinite ease-in-out; border-left-color: #10b981 !important; border-left-width: 8px !important; }
+      .equip-pronto .equip-data { color: #10b981 !important; }
+
       .badge-blink-anim { animation: blinkText 1.5s infinite ease-in-out; }
     </style>
   </head>
@@ -264,6 +278,10 @@
             let diffDias = 0;
             let dataCurta = eq.data;
             
+            // 🔥 NOVO: Verifica se a variável manutencaoConcluida existe e é "SIM"
+            // (Esta variável precisará ser enviada pelo Quadro.gs no próximo passo)
+            let isPronto = (eq.manutencaoConcluida && eq.manutencaoConcluida.toString().trim().toUpperCase() === "SIM");
+            
             if (eq.data && eq.data !== "-") {
                 let pCompleto = eq.data.toString().split(' ');
                 let pts = pCompleto[0].split('/'); 
@@ -274,7 +292,8 @@
                     
                     diffDias = Math.floor((hojeData.getTime() - dEq.getTime()) / (1000 * 3600 * 24));
                     
-                    if (diffDias >= 5) {
+                    // Só aciona o alerta de atraso se a manutenção NÃO estiver concluída
+                    if (diffDias >= 5 && !isPronto) {
                         isAtrasado = true;
                     }
                 }
@@ -288,16 +307,26 @@
                 }
             }
 
-            let classeAtraso = isAtrasado ? 'equip-atrasado' : '';
-            let iconeData = isAtrasado ? 'bi-exclamation-octagon-fill' : 'bi-calendar-event';
-            let badgePrioridade = isAtrasado ? `<span class="badge bg-danger ms-2 badge-blink-anim" style="vertical-align: middle;">PRIORIDADE (+${diffDias}d)</span>` : '';
+            // Definição da hierarquia de Status Visual (Pronto > Atrasado > Padrão)
+            let classeCSS = '';
+            let iconeData = 'bi-calendar-event';
+            let badgePrioridade = '';
+
+            if (isPronto) {
+                classeCSS = 'equip-pronto';
+                iconeData = 'bi-check-circle-fill';
+                badgePrioridade = `<span class="badge bg-success ms-2" style="vertical-align: middle;">PRONTO</span>`;
+            } else if (isAtrasado) {
+                classeCSS = 'equip-atrasado';
+                iconeData = 'bi-exclamation-octagon-fill';
+                badgePrioridade = `<span class="badge bg-danger ms-2 badge-blink-anim" style="vertical-align: middle;">PRIORIDADE (+${diffDias}d)</span>`;
+            }
 
             let tecRecebeu = eq.tecnico || eq.tecnicoRecebeu || "-";
             let tecManut = eq.tecnicoManutencao || "-";
 
-            // 🔥 INJEÇÃO CIRÚRGICA: Campo "Resp" colorido em Azul Celeste e em Negrito
             return `
-              <div class="equip-card shadow ${classeAtraso}">
+              <div class="equip-card shadow ${classeCSS}">
                 <div class="equip-data"><i class="bi ${iconeData}"></i> ${dataCurta} ${badgePrioridade}</div>
                 <div class="equip-titulo">${eq.equipamento}</div>
                 <div class="equip-desc">
