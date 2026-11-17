@@ -232,14 +232,25 @@
         document.getElementById('btn-cancelar-aviso').classList.add('d-none');
       }
 
+      // 🔥 CORREÇÃO: Função iniciarEdicaoMissao agora reconhece e injeta o ano correto
       function iniciarEdicaoMissao(id, dataStr, desc, local) {
         document.getElementById('inp-missao-id').value = id; document.getElementById('inp-m-desc').value = desc; document.getElementById('inp-m-local').value = local;
         let dataInput = ""; let horaInput = "";
+        
         if(dataStr) {
             let partes = dataStr.split(' - ');
-            if (partes.length > 0) { let dM = partes[0].split('/'); if(dM.length === 2) dataInput = `${new Date().getFullYear()}-${dM[1]}-${dM[0]}`; }
+            if (partes.length > 0) { 
+                let dM = partes[0].split('/'); 
+                // Se a data vier com 3 partes (Dia, Mês, Ano), usa esse ano.
+                // Se vier apenas com 2 partes (Dia, Mês), aí sim, assume o ano atual.
+                let ano = dM.length === 3 ? dM[2] : new Date().getFullYear();
+                if(dM.length >= 2) {
+                    dataInput = `${ano}-${dM[1].padStart(2, '0')}-${dM[0].padStart(2, '0')}`;
+                }
+            }
             if (partes.length > 1) horaInput = partes[1].trim();
         }
+        
         document.getElementById('inp-m-data').value = dataInput; document.getElementById('inp-m-hora').value = horaInput;
         document.getElementById('titulo-missao').innerHTML = '<i class="bi bi-pencil-square"></i> Editar Missão';
         document.getElementById('titulo-missao').classList.replace('text-success', 'text-warning');
@@ -270,7 +281,7 @@
           document.getElementById('admin-avisos-lista').innerHTML = htmlAvisos || "<tr><td class='text-muted text-center py-3'>Nenhum aviso registrado.</td></tr>";
 
           // ==============================================================
-          // ORDENAÇÃO CRONOLÓGICA DAS MISSÕES (Data e Hora Crescente)
+          // 🔥 CORREÇÃO: ORDENAÇÃO CRONOLÓGICA BLINDADA PARA ANOS FUTUROS
           // ==============================================================
           dados.missoes.sort((a, b) => {
             function obterValorData(str) {
@@ -279,7 +290,8 @@
               let dM = partes[0].trim().split('/');
               let dia = dM[0] ? dM[0].padStart(2, '0') : '99';
               let mes = dM[1] ? dM[1].padStart(2, '0') : '99';
-              let ano = dM[2] ? dM[2] : new Date().getFullYear().toString();
+              // Agora reconhece o ano, se ele existir na string, caso contrário assume o ano atual
+              let ano = (dM.length === 3 && dM[2]) ? dM[2] : new Date().getFullYear().toString();
               let hora = partes[1] ? partes[1].trim().replace(':', '') : '9999';
               return parseInt(ano + mes + dia + hora, 10);
             }
